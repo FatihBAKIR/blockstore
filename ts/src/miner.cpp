@@ -7,7 +7,7 @@ int fibonacci(int n)
 	return fibonacci(n - 1) + fibonacci(n - 2);
 }
 
-auto foo(std::string x, int y)
+auto entry_point(std::string x, int y)
 {
 	// this block is executed in a thread
 	auto res = fibonacci(y);	
@@ -19,5 +19,5 @@ auto foo(std::string x, int y)
 }
 
 NAN_METHOD(MineAsync) { 
-	AsyncQueueWorker(meta::bind<std::string, int>(foo, info)); 
+	AsyncQueueWorker(meta::bind<std::string, int>(entry_point, info)); 
 }
