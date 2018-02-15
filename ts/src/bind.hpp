@@ -30,11 +30,15 @@
  * 
  * This will automatically map the <NanMethodName> function 
  * asynchronously to the <entry_point> function.
+ * 
+ * It also uses a couple of C++17 features but could be back-
+ * ported trivially.
  */
 
 #include <nan.h>
 #include <functional>
 #include <memory>
+#include <optional>
 
 namespace meta
 {
@@ -166,7 +170,7 @@ namespace meta
 		template<size_t... I>
 		void exec(std::index_sequence<I...>)
 		{
-			m_cb = std::make_unique<ret_t>(m_fun(std::get<I>(m_args)...));
+			m_cb.emplace(m_fun(std::get<I>(m_args)...));
 		}
 
 		void Execute() {
@@ -181,7 +185,7 @@ namespace meta
 	private:
 		FunT m_fun;
 		std::tuple<ArgTs...> m_args;
-		std::unique_ptr<ret_t> m_cb;
+		std::optional<ret_t> m_cb;
 	};
 
 	template<class... ArgTs, class FunT, size_t... I>
