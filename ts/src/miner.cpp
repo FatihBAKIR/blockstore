@@ -1,8 +1,6 @@
 #include "miner.hpp"
 #include "bind.hpp"
 
-using namespace meta;
-
 int fibonacci(int n)
 {
 	if (n <= 1) return n;
@@ -21,5 +19,5 @@ auto foo(std::string x, int y)
 }
 
 NAN_METHOD(MineAsync) { 
-	AsyncQueueWorker(bind<std::string, int>(foo, info)); 
+	AsyncQueueWorker(meta::bind<std::string, int>(foo, info)); 
 }
