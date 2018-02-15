@@ -7,7 +7,7 @@
  ********************************************************************/
 
 #include "miner.hpp"
-#include "meta.hpp"
+#include "bind.hpp"
 using namespace meta;
 
 auto foo(std::string x, int y) -> std::function<void(Callback*)>
