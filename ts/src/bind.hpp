@@ -1,14 +1,36 @@
 #pragma once
 
-/**************
- * 
+/*
  * !!!!!!!!!!!! HERE BE DRAGONS !!!!!!!!!!!
  * 
  * This is just pure metaprogramming and not expected to be understood
  * 
- * Checkout _miner.cpp_ for example usage
+ * Basically, we create a `Nan::AsyncWorker` implementation from a
+ * given function object. It deduces the function parameter types
+ * and converts v8 object to C++ object conversion and vice versa
+ * automatically.
  * 
- * ***********/
+ * Usage:
+ * 
+ * 		auto <entry_point>(std::string x, int y)
+ *		{
+ *			// this block is executed in a thread
+ *          // do the expensive stuff here
+ *
+ *			return [=](auto cb){
+ *				// this block is executed in the node event loop
+ *				// call the cb object with the results
+ *				cb(x + x, y * y + 42);
+ *			};
+ *		}
+ *
+ * 		NAN_METHOD(<NanMethodName>) { 
+ * 			meta::bind(<entry_point>, info); 
+ *		}
+ * 
+ * This will automatically map the <NanMethodName> function 
+ * asynchronously to the <entry_point> function.
+ */
 
 #include <nan.h>
 #include <functional>
@@ -16,7 +38,15 @@
 
 namespace meta
 {
-	template <class T> struct type {};
+	/***
+	 * This type is used to pass other types as parameters to functions
+	 */
+	template <class> struct type {};
+
+	/***
+	 * This type represents a list of types
+	 */
+	template <class...> struct list {};
 
 	using clval = const v8::Local<v8::Value>&; 
 
@@ -32,8 +62,16 @@ namespace meta
 	double extract(type<double>, clval t)
 	{ return Nan::To<double>(t).FromJust(); }
 
-	template <class T>
-	struct map {};
+	/***
+	 * This struct template maps C++ types to v8 types
+	 * Used when returning values to the v8 runtime
+	 * 
+	 * Should be specialized for each C++ type we want to
+	 * support
+	 * 
+	 * @tparam T Type of the C++ type
+	 */
+	template <class T> struct map;
 
 	template <> struct map<int> 		{ using type = v8::Number; 	};
 	template <> struct map<long> 		{ using type = v8::Number; 	};
@@ -50,10 +88,41 @@ namespace meta
 	template <class T>
 	struct mapping_traits
 	{
+		/**
+		 * This is the type of the Nan::New call for the given C++ type
+		 * Useful for differentiating between MaybeLocal and Local types?
+		 */
 		using new_t = clean_t<decltype(Nan::New<map_t<T>>(std::declval<T>()))>;
 	};
 
-	template <class...> struct list {};
+	/***
+	 * Converts the given C++ object into a v8 runtime local object
+	 * This is used when returning to v8 from a function or through a callback
+	 * See convert function for usage
+	 * 
+	 * @tparam Type of the C++ object
+	 * @param t the C++ object
+	 * @retval v8 object
+	 */
+	template <class T>
+	v8::Local<v8::Value> convert(T&& t)
+	{
+		using Nan::New;
+		using traits = mapping_traits<T>;
+		using new_t = typename traits::new_t;
+		if constexpr(std::is_same<new_t, v8::MaybeLocal<map_t<T>>>{})
+		{
+			return New<map_t<T>>(std::forward<T>(t)).ToLocalChecked();
+		}
+		else if constexpr(std::is_same<new_t, v8::Local<map_t<T>>>{})
+		{
+			return New<map_t<T>>(std::forward<T>(t));
+		}
+		else
+		{
+			static_assert("Should be a Local or MaybeLocal");
+		}
+	}
 
 	template<class T>
 	struct function_traits;
@@ -74,27 +143,14 @@ namespace meta
 		static inline constexpr auto arg_len = sizeof...(ArgTs);
 	};
 
-	template <class T>
-	v8::Local<v8::Value> convert(T&& t)
-	{
-		using Nan::New;
-		using traits = mapping_traits<T>;
-		using new_t = typename traits::new_t;
-		if constexpr(std::is_same<new_t, v8::MaybeLocal<map_t<T>>>{})
-		{
-			return New<map_t<T>>(std::forward<T>(t)).ToLocalChecked();
-		}
-		else
-		{
-			return New<map_t<T>>(std::forward<T>(t));
-		}
-	}
-
 	template <class... Ts>
 	void call(Nan::Callback* cb, Ts&&... ts)
 	{
 		Nan::HandleScope scope;
+		// convert each C++ callback argument into a v8 local object and
+		// put them in an array
 		v8::Local<v8::Value> argv[] = { convert(std::forward<Ts>(ts))... };
+		// call the callback with the created array
 		cb->Call(sizeof...(Ts), argv);
 	}
 

@@ -10,7 +10,7 @@ int fibonacci(int n)
 auto entry_point(std::string x, int y)
 {
 	// this block is executed in a thread
-	auto res = fibonacci(y);
+	auto res = fibonacci(y);		
 
 	return [=](auto cb){
 		// this block is executed in the node event loop
