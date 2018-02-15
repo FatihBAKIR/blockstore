@@ -6,11 +6,15 @@
  * MIT License <https://github.com/nodejs/nan/blob/master/LICENSE.md>
  ********************************************************************/
 
-#ifndef EXAMPLES_ASYNC_PI_ESTIMATE_SYNC_H_
-#define EXAMPLES_ASYNC_PI_ESTIMATE_SYNC_H_
+#include "miner.hpp"
+#include "meta.hpp"
+using namespace meta;
 
-#include <nan.h>
+auto foo(std::string x, int y) -> std::function<void(Callback*)>
+{
+	return [=](auto cb){
+		call(cb, x + x, y * 4);
+	};
+}
 
-NAN_METHOD(CalculateSync);
-
-#endif  // EXAMPLES_ASYNC_PI_ESTIMATE_SYNC_H_
+NAN_METHOD(MineAsync) { AsyncQueueWorker(bind<std::string, int>(foo, info)); }
