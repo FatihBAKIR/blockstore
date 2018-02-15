@@ -16,7 +16,7 @@ auto foo(std::string x, int y)
 
 	return [=](auto cb){
 		// this block is executed in the node event loop
-		call(cb, x + x, res);
+		cb(x + x, res);
 	};
 }
 

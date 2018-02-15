@@ -12,6 +12,7 @@
 
 #include <nan.h>
 #include <functional>
+#include <memory>
 
 namespace meta
 {
@@ -90,6 +91,7 @@ namespace meta
 	template <class FunT, class... ArgTs>
 	class MetaWorker : public AsyncWorker
 	{
+		using ret_t = clean_t<decltype(std::declval<FunT>()(std::declval<ArgTs>()...))>;
 	public:
 		MetaWorker(Callback* cb, FunT fun, std::tuple<ArgTs...> args) 
 			: AsyncWorker(cb), m_fun(fun), m_args(std::move(args))
@@ -98,7 +100,7 @@ namespace meta
 		template<size_t... I>
 		void exec(std::index_sequence<I...>)
 		{
-			m_cb = m_fun(std::get<I>(m_args)...);
+			m_cb = std::make_unique<ret_t>(m_fun(std::get<I>(m_args)...));
 		}
 
 		void Execute() {
@@ -106,12 +108,14 @@ namespace meta
 		}
 
 		void HandleOKCallback() {
-			m_cb(callback);
+			(*m_cb)([this](auto... args){
+				call(callback, std::forward<decltype(args)>(args)...);
+			});
 		}
 	private:
 		FunT m_fun;
 		std::tuple<ArgTs...> m_args;
-		std::function<void(Callback*)> m_cb;
+		std::unique_ptr<ret_t> m_cb;
 	};
 
 	template<class... ArgTs, class FunT, size_t... I>
