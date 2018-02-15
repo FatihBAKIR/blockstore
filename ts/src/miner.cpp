@@ -7,7 +7,7 @@ int fibonacci(int n)
 	return fibonacci(n - 1) + fibonacci(n - 2);
 }
 
-auto entry_point(std::string x, int y)
+auto entry_point(std::string x, int y, bool z)
 {
 	// this block is executed in a thread
 	auto res = fibonacci(y);		

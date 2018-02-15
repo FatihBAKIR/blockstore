@@ -66,6 +66,9 @@ namespace meta
 	double extract(type<double>, clval t)
 	{ return Nan::To<double>(t).FromJust(); }
 
+	bool extract(type<bool>, clval t)
+	{ return Nan::To<bool>(t).FromJust(); }
+
 	/***
 	 * This struct template maps C++ types to v8 types
 	 * Used when returning values to the v8 runtime
@@ -81,6 +84,7 @@ namespace meta
 	template <> struct map<long> 		{ using type = v8::Number; 	};
 	template <> struct map<float> 		{ using type = v8::Number; 	};
 	template <> struct map<double> 		{ using type = v8::Number; 	};
+	template <> struct map<bool> 		{ using type = v8::Boolean;	};
 	template <> struct map<std::string> { using type = v8::String; 	};
 
 	template <class T>
