@@ -7,7 +7,7 @@ int fibonacci(int n)
 	return fibonacci(n - 1) + fibonacci(n - 2);
 }
 
-auto entry_point(std::string x, int y, bool z)
+auto hashAsync(std::string payload_hash, int diff)
 {
 	// this block is executed in a thread
 	auto res = fibonacci(y);		
@@ -19,5 +19,5 @@ auto entry_point(std::string x, int y, bool z)
 }
 
 NAN_METHOD(MineAsync) { 
-	meta::bind(entry_point, info); 
+	meta::bind(hashAsync, info); 
 }

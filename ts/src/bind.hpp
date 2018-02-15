@@ -38,7 +38,7 @@
 #include <nan.h>
 #include <functional>
 #include <memory>
-#include <optional>
+#include <experimental/optional>
 
 namespace meta
 {
@@ -55,8 +55,10 @@ namespace meta
 	using clval = const v8::Local<v8::Value>&; 
 
 	std::string extract(type<std::string>, clval t)
-	{ return *v8::String::Utf8Value(t.As<v8::String>()); }
-
+	{ 	
+		return *v8::String::Utf8Value(Nan::To<v8::String>(t).ToLocalChecked()); 
+	}
+	
 	int extract(type<int>, clval t)
 	{ return Nan::To<int>(t).FromJust(); }
 
@@ -189,7 +191,7 @@ namespace meta
 	private:
 		FunT m_fun;
 		std::tuple<ArgTs...> m_args;
-		std::optional<ret_t> m_cb;
+		std::experimental::optional<ret_t> m_cb;
 	};
 
 	template<class... ArgTs, class FunT, size_t... I>
