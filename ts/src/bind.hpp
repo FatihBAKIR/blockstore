@@ -65,6 +65,27 @@ namespace meta
 		using new_t = clean_t<decltype(New<map_t<T>>(std::declval<T>()))>;
 	};
 
+	template <class...> struct list {};
+
+	template<class T>
+	struct function_traits;
+
+	template<class RetT, class... ArgTs> 
+	struct function_traits<RetT(*)(ArgTs...)>
+	{
+		using ret_t = RetT;
+		using arg_ts = list<clean_t<ArgTs>...>;
+		static inline constexpr auto arg_len = sizeof...(ArgTs);
+	};
+
+	template<class RetT, class... ArgTs> 
+	struct function_traits<RetT(&)(ArgTs...)>
+	{
+		using ret_t = RetT;
+		using arg_ts = list<clean_t<ArgTs>...>;
+		static inline constexpr auto arg_len = sizeof...(ArgTs);
+	};
+
 	template <class T>
 	Local<Value> convert(T&& t)
 	{
@@ -119,8 +140,8 @@ namespace meta
 	};
 
 	template<class... ArgTs, class FunT, size_t... I>
-	auto bind(FunT&& fun, const Nan::FunctionCallbackInfo<v8::Value>& info, 
-			std::index_sequence<I...>)
+	auto bind_in(FunT&& fun, const Nan::FunctionCallbackInfo<v8::Value>& info, 
+			std::index_sequence<I...>, list<ArgTs...>)
 	{
 		constexpr auto arg_count = sizeof...(ArgTs);
 		auto arg_tuple = std::tuple<ArgTs...>{ extract(type<ArgTs>{}, info[I])... };
@@ -129,10 +150,18 @@ namespace meta
 		return res;
 	}
 
-	template<class... ArgTs, class FunT>
+	/*template<class... ArgTs, class FunT>
 	auto bind(FunT&& fun, const Nan::FunctionCallbackInfo<v8::Value>& info)
 	{
 		constexpr auto arg_count = sizeof...(ArgTs);
 		return bind<ArgTs...>(std::forward<FunT>(fun), info, std::make_index_sequence<arg_count>{});
+	}*/
+
+	template<class FunT>
+	auto bind(FunT&& fun, const Nan::FunctionCallbackInfo<v8::Value>& info)
+	{
+		using traits = function_traits<FunT>;
+		constexpr auto arg_count = traits::arg_len;
+		return bind_in(std::forward<FunT>(fun), info, std::make_index_sequence<arg_count>{}, typename traits::arg_ts{});
 	}
 }

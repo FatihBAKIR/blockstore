@@ -10,7 +10,7 @@ int fibonacci(int n)
 auto entry_point(std::string x, int y)
 {
 	// this block is executed in a thread
-	auto res = fibonacci(y);	
+	auto res = fibonacci(y);
 
 	return [=](auto cb){
 		// this block is executed in the node event loop
@@ -19,5 +19,5 @@ auto entry_point(std::string x, int y)
 }
 
 NAN_METHOD(MineAsync) { 
-	AsyncQueueWorker(meta::bind<std::string, int>(entry_point, info)); 
+	AsyncQueueWorker(meta::bind(entry_point, info)); 
 }
