@@ -1,20 +1,32 @@
+#pragma once
+
+/**************
+ * 
+ * !!!!!!!!!!!! HERE BE DRAGONS !!!!!!!!!!!
+ * 
+ * This is just pure metaprogramming and not expected to be understood
+ * 
+ * Checkout _miner.cpp_ for example usage
+ * 
+ * ***********/
+
 #include <nan.h>
 #include <functional>
 
-using v8::Function;
-using v8::Local;
-using v8::Number;
-using v8::Value;
-using Nan::AsyncQueueWorker;
-using Nan::AsyncWorker;
-using Nan::Callback;
-using Nan::HandleScope;
-using Nan::New;
-using Nan::Null;
-using Nan::To;
-
 namespace meta
 {
+	using v8::Function;
+	using v8::Local;
+	using v8::Number;
+	using v8::Value;
+	using Nan::AsyncQueueWorker;
+	using Nan::AsyncWorker;
+	using Nan::Callback;
+	using Nan::HandleScope;
+	using Nan::New;
+	using Nan::Null;
+	using Nan::To;
+
 	template <class T> struct type {};
 
 	using clval = const v8::Local<v8::Value>&; 
