@@ -19,5 +19,5 @@ auto entry_point(std::string x, int y)
 }
 
 NAN_METHOD(MineAsync) { 
-	AsyncQueueWorker(meta::bind(entry_point, info)); 
+	meta::bind(entry_point, info); 
 }

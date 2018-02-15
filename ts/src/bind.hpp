@@ -147,7 +147,7 @@ namespace meta
 		auto arg_tuple = std::tuple<ArgTs...>{ extract(type<ArgTs>{}, info[I])... };
 		Callback *callback = new Callback(info[arg_count].As<Function>());
 		auto res = new MetaWorker<FunT, ArgTs...>{callback, fun, std::move(arg_tuple)};
-		return res;
+		AsyncQueueWorker(res);
 	}
 
 	/*template<class... ArgTs, class FunT>
