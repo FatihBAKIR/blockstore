@@ -1,5 +1,5 @@
 import bindings = require("bindings");
-const mod = bindings("addon");
+const native = bindings("addon");
 
 import {Block} from "./Block"
 
@@ -44,31 +44,31 @@ class BlockStore implements IKVStore {
     }
 }
 
-mod.mineAsync("yolo", 4, (nonce) => {
+native.mineAsync("yolo", 4, (nonce) => {
     console.log(4, nonce);
 });
 
-mod.mineAsync("yolo", 8, (nonce) => {
+native.mineAsync("yolo", 8, (nonce) => {
     console.log(8, nonce);
 });
 
-mod.mineAsync("yolo", 12, (nonce) => {
+native.mineAsync("yolo", 12, (nonce) => {
     console.log(12, nonce);
 });
 
-mod.mineAsync("yolo", 16, (nonce) => {
+native.mineAsync("yolo", 16, (nonce) => {
     console.log(16, nonce);
 });
 
-mod.mineAsync("yolo", 17, (nonce) => {
+native.mineAsync("yolo", 17, (nonce) => {
     console.log(17, nonce);
 });
 
-mod.mineAsync("yolo", 18, (nonce) => {
+native.mineAsync("yolo", 18, (nonce) => {
     console.log(18, nonce);
 });
 
-mod.mineAsync("yolo", 20, (nonce) => {
+native.mineAsync("yolo", 20, (nonce) => {
     console.log(20, nonce);
 });
 
