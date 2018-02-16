@@ -1,6 +1,6 @@
 import bindings = require("bindings");
 const native = bindings("addon");
-import {Block} from "./Block"
+import {Block, GenHeaderHash} from "./Block"
 
 
 class Get
@@ -60,8 +60,10 @@ class BlockStore implements IKVStore {
     }
 }
 
+const block = new Block<PlType>();
+
 const begin = Date.now();
-native.mineAsync("yolo", 20, (nonce) => {
+native.mineAsync(GenHeaderHash(block), 20, (nonce) => {
     const end = Date.now();
     console.log(20, nonce);
     console.log(end - begin);
