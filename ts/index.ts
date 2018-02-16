@@ -44,30 +44,6 @@ class BlockStore implements IKVStore {
     }
 }
 
-native.mineAsync("yolo", 4, (nonce) => {
-    console.log(4, nonce);
-});
-
-native.mineAsync("yolo", 8, (nonce) => {
-    console.log(8, nonce);
-});
-
-native.mineAsync("yolo", 12, (nonce) => {
-    console.log(12, nonce);
-});
-
-native.mineAsync("yolo", 16, (nonce) => {
-    console.log(16, nonce);
-});
-
-native.mineAsync("yolo", 17, (nonce) => {
-    console.log(17, nonce);
-});
-
-native.mineAsync("yolo", 18, (nonce) => {
-    console.log(18, nonce);
-});
-
 native.mineAsync("yolo", 20, (nonce) => {
     console.log(20, nonce);
 });
