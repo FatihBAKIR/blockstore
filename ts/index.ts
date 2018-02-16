@@ -34,10 +34,10 @@ class PlType
 
 interface IKVStore
 {
-    get(key);
-    put(key, val);
-    delete(key);
-    update(key, val);
+    Get(key);
+    Put(key, val);
+    Delete(key);
+    Update(key, val);
 }
 
 class BlockStore implements IKVStore {
