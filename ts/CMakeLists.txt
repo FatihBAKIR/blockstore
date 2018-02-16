@@ -8,8 +8,7 @@ project (addon)
 include_directories(${CMAKE_JS_INC})
 set(CMAKE_CXX_STANDARD 17)
 
-# Declare the location of the source files
-file(GLOB SOURCE_FILES "src/*.cpp" "src/*.hpp")
+set(SOURCE_FILES src/bind.hpp src/addon.cpp src/md5.hpp src/md5.cpp src/miner.hpp src/miner.cpp)
 
 # This line will tell CMake that we're building a shared library
 # from the above source files

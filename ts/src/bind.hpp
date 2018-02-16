@@ -58,7 +58,7 @@ namespace meta
 	{ 	
 		return *v8::String::Utf8Value(Nan::To<v8::String>(t).ToLocalChecked()); 
 	}
-	
+
 	int extract(type<int>, clval t)
 	{ return Nan::To<int>(t).FromJust(); }
 
@@ -83,6 +83,7 @@ namespace meta
 	template <class T> struct map;
 
 	template <> struct map<int> 		{ using type = v8::Number; 	};
+	template <> struct map<uint32_t> 	{ using type = v8::Number; 	};
 	template <> struct map<long> 		{ using type = v8::Number; 	};
 	template <> struct map<float> 		{ using type = v8::Number; 	};
 	template <> struct map<double> 		{ using type = v8::Number; 	};

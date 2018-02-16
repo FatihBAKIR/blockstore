@@ -1,5 +1,5 @@
 import bindings = require("bindings");
-const mod = bindings("addon");
+const native = bindings("addon");
 import {Block} from "./Block"
 
 
@@ -59,6 +59,14 @@ class BlockStore implements IKVStore {
         throw new Error("Method not implemented.");
     }
 }
+
+const begin = Date.now();
+native.mineAsync("yolo", 20, (nonce) => {
+    const end = Date.now();
+    console.log(20, nonce);
+    console.log(end - begin);
+});
+
 
 /*let chain : Array<Block<string>>;
 let kv : IKVStore;
