@@ -44,8 +44,11 @@ class BlockStore implements IKVStore {
     }
 }
 
+const begin = Date.now();
 native.mineAsync("yolo", 20, (nonce) => {
+    const end = Date.now();
     console.log(20, nonce);
+    console.log(end - begin);
 });
 
 
