@@ -1,9 +1,20 @@
 import bindings = require("bindings");
 const mod = bindings("addon");
-
 import {Block} from "./Block"
 
+
+class Get
+{
+  key: string;
+}
+
 class Put
+{
+    key: string;
+    val: string;
+}
+
+class Upd
 {
     key: string;
     val: string;
@@ -14,59 +25,46 @@ class Del
     key: string;
 }
 
-class Upd
-{
-    key: string;
-    val: string;
-}
-
-type Op = Put | Del | Upd;
+type Op = Get | Put | Upd | Del;
 
 class PlType
 {
     ops: Array<Op>;
 }
 
-const b = new Block<PlType>();
-
-class BlockStore implements IKVStore {
-    put(key: any, val: any) {
-        throw new Error("Method not implemented.");
-    }
-    get(key: any) {
-        throw new Error("Method not implemented.");
-    }
-    delete(key: any) {
-        throw new Error("Method not implemented.");
-    }
-    update(key: any, val: any) {
-        throw new Error("Method not implemented.");
-    }
-}
-
-mod.mineAsync("yolo", 43, false, (res, x) => {
-    console.log(res, x);
-});
-
-mod.mineAsync("holo", 43, true, (res, x) => {
-    console.log(res, x);
-});
-
 interface IKVStore
 {
-    put(key, val);
     get(key);
+    put(key, val);
     delete(key);
     update(key, val);
 }
 
-let chain : Array<Block<string>>;
-let kv : IKVStore;
+class BlockStore implements IKVStore {
+    Get(key: any) {
+        throw new Error("Method not implemented.");
+    }
+    Put(key: any, val: any) {
+        // create a new block for the operation
+        // setup block with operation
+        // compute nonce until target is found
+        // broadcast to all nodes once found
+        // call internal kv function to put value
+        throw new Error("Method not implemented.");
+    }
+    Update(key: any, val: any) {
+        throw new Error("Method not implemented.");
+    }
+    Delete(key: any) {
+        throw new Error("Method not implemented.");
+    }
+}
 
-// blk -> put("yo", 123);
+/*let chain : Array<Block<string>>;
+let kv : IKVStore;
 
 // wait majority before calling this
 function handle_new_block(blk: Block<string>)
 {
     chain.push(blk);
-}
+}*/
