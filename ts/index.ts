@@ -44,13 +44,34 @@ class BlockStore implements IKVStore {
     }
 }
 
-mod.mineAsync("yolo", 43, false, (res, x) => {
-    console.log(res, x);
+mod.mineAsync("yolo", 4, (nonce) => {
+    console.log(nonce);
 });
 
-mod.mineAsync("holo", 43, true, (res, x) => {
-    console.log(res, x);
+mod.mineAsync("yolo", 8, (nonce) => {
+    console.log(nonce);
 });
+
+mod.mineAsync("yolo", 12, (nonce) => {
+    console.log(nonce);
+});
+
+mod.mineAsync("yolo", 16, (nonce) => {
+    console.log(16, nonce);
+});
+
+mod.mineAsync("yolo", 17, (nonce) => {
+    console.log(17, nonce);
+});
+
+mod.mineAsync("yolo", 18, (nonce) => {
+    console.log(18, nonce);
+});
+
+mod.mineAsync("yolo", 20, (nonce) => {
+    console.log(nonce);
+});
+
 
 interface IKVStore
 {
