@@ -55,7 +55,7 @@ auto hashAsync(std::string payload_hash, int diff)
 		
 		if ((tmp.get_digest() >> (128 - diff)) == 0)
 		{
-			std::cout << "orig: ";
+			/*std::cout << "orig: ";
 			print_uint(tmp.get_digest());
 			std::cout << '\n';
 
@@ -63,7 +63,7 @@ auto hashAsync(std::string payload_hash, int diff)
 			print_uint((tmp.get_digest() >> (128 - diff)));
 			std::cout << '\n';
 
-			std::cout << "found: " << tmp.hexdigest() << '\n';
+			std::cout << "found: " << tmp.hexdigest() << '\n';*/
 			break;
 		}
 		nonce++;

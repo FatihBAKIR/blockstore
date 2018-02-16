@@ -45,15 +45,15 @@ class BlockStore implements IKVStore {
 }
 
 mod.mineAsync("yolo", 4, (nonce) => {
-    console.log(nonce);
+    console.log(4, nonce);
 });
 
 mod.mineAsync("yolo", 8, (nonce) => {
-    console.log(nonce);
+    console.log(8, nonce);
 });
 
 mod.mineAsync("yolo", 12, (nonce) => {
-    console.log(nonce);
+    console.log(12, nonce);
 });
 
 mod.mineAsync("yolo", 16, (nonce) => {
@@ -69,7 +69,7 @@ mod.mineAsync("yolo", 18, (nonce) => {
 });
 
 mod.mineAsync("yolo", 20, (nonce) => {
-    console.log(nonce);
+    console.log(20, nonce);
 });
 
 
