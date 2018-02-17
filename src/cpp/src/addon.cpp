@@ -1,5 +1,5 @@
 #include <nan.h>
-#include "miner.hpp"
+#include <bs/miner.hpp>
 
 using v8::FunctionTemplate;
 using v8::Handle;
