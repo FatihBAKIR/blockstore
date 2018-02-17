@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.9)
 
 # Name of the project (will be the name of the plugin)
 project (addon)
@@ -8,7 +8,7 @@ project (addon)
 include_directories(${CMAKE_JS_INC})
 set(CMAKE_CXX_STANDARD 17)
 
-set(SOURCE_FILES src/bind.hpp src/addon.cpp src/md5.hpp src/md5.cpp src/miner.hpp src/miner.cpp)
+set(SOURCE_FILES bind.hpp addon.cpp md5.hpp md5.cpp miner.hpp miner.cpp)
 
 # This line will tell CMake that we're building a shared library
 # from the above source files
