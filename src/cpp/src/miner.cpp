@@ -39,7 +39,7 @@ void print_uint(I value)
 	std::cout << output;
 }
 
-auto hashAsync(std::string payload_hash, int difficulty)
+auto hash_async(std::string payload_hash, int difficulty)
 {
 	// this block is executed in a thread
 	MD5 hash;
@@ -74,6 +74,21 @@ auto hashAsync(std::string payload_hash, int difficulty)
 	};
 }
 
+auto validate_async(std::string payload_hash, int difficulty, uint32_t nonce)
+{
+	MD5 hash;
+	hash.update(payload_hash.data(), payload_hash.size());
+	hash.update(reinterpret_cast<uint8_t*>(&nonce), sizeof nonce);
+	hash.finalize();
+	bool res = (hash.get_digest() >> (128 - difficulty)) == 0;
+
+	return [=](auto cb){ cb(res); };
+}
+
 NAN_METHOD(MineAsync) { 
-	meta::bind(hashAsync, info); 
+	meta::bind(hash_async, info); 
+}
+
+NAN_METHOD(ValidateAsync) { 
+	meta::bind(validate_async, info); 
 }

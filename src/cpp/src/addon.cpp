@@ -10,8 +10,10 @@ using Nan::New;
 using Nan::Set;
 
 NAN_MODULE_INIT(InitAll) {
-  Set(target, New<String>("mineAsync").ToLocalChecked(),
+  Set(target, New<String>("MineAsync").ToLocalChecked(),
     GetFunction(New<FunctionTemplate>(MineAsync)).ToLocalChecked());
+  Set(target, New<String>("ValidateAsync").ToLocalChecked(),
+    GetFunction(New<FunctionTemplate>(ValidateAsync)).ToLocalChecked());
 }
 
 NODE_MODULE(addon, InitAll)

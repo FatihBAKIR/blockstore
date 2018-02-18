@@ -1,10 +1,25 @@
-type DificultyMode = Static | Rolling;
+export enum DificultyMode 
+{
+  Static,
+  Rolling
+}
 
-type BroadcastMode = Sync | Async;
+export enum BroadcastMode
+{
+  Sync,
+  Async
+}
 
-type BroadcastMinGuarantee = None | Single | Double | Majority | All;
+export enum BroadcastMinGuarantee 
+{
+  None,
+  Single,
+  Double,
+  Majority,
+  All
+}
 
-export class Config 
+export interface Config 
 {
   // Maximum data size of the Value in the Operation parameters
   operationMaxSize: number;

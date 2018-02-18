@@ -59,8 +59,23 @@ namespace meta
 		return *v8::String::Utf8Value(Nan::To<v8::String>(t).ToLocalChecked()); 
 	}
 
-	int extract(type<int>, clval t)
-	{ return Nan::To<int>(t).FromJust(); }
+	int8_t extract(type<int8_t>, clval t)
+	{ return Nan::To<int64_t>(t).FromJust(); }
+	int16_t extract(type<int16_t>, clval t)
+	{ return Nan::To<int64_t>(t).FromJust(); }
+	int32_t extract(type<int32_t>, clval t)
+	{ return Nan::To<int64_t>(t).FromJust(); }
+	int64_t extract(type<int64_t>, clval t)
+	{ return Nan::To<int64_t>(t).FromJust(); }
+
+	uint8_t extract(type<uint8_t>, clval t)
+	{ return Nan::To<int64_t>(t).FromJust(); }
+	uint16_t extract(type<uint16_t>, clval t)
+	{ return Nan::To<int64_t>(t).FromJust(); }
+	uint32_t extract(type<uint32_t>, clval t)
+	{ return Nan::To<int64_t>(t).FromJust(); }
+	uint64_t extract(type<uint64_t>, clval t)
+	{ return Nan::To<int64_t>(t).FromJust(); }
 
 	float extract(type<float>, clval t)
 	{ return Nan::To<double>(t).FromJust(); }
@@ -82,13 +97,18 @@ namespace meta
 	 */
 	template <class T> struct map;
 
-	template <> struct map<int> 		{ using type = v8::Number; 	};
-	template <> struct map<uint32_t> 	{ using type = v8::Number; 	};
-	template <> struct map<long> 		{ using type = v8::Number; 	};
-	template <> struct map<float> 		{ using type = v8::Number; 	};
-	template <> struct map<double> 		{ using type = v8::Number; 	};
-	template <> struct map<bool> 		{ using type = v8::Boolean;	};
-	template <> struct map<std::string> { using type = v8::String; 	};
+	template <> struct map<int8_t>   	{ using type = v8::Number;  };
+	template <> struct map<int16_t>  	{ using type = v8::Number;  };
+	template <> struct map<int32_t>  	{ using type = v8::Number;  };
+	template <> struct map<int64_t>  	{ using type = v8::Number;  };
+	template <> struct map<uint8_t>  	{ using type = v8::Number;  };
+	template <> struct map<uint16_t>  	{ using type = v8::Number;  };
+	template <> struct map<uint32_t>  	{ using type = v8::Number;  };
+	template <> struct map<uint64_t>  	{ using type = v8::Number;  };
+	template <> struct map<float>   	{ using type = v8::Number;  };
+	template <> struct map<double>   	{ using type = v8::Number;  };
+	template <> struct map<bool>   		{ using type = v8::Boolean; };
+	template <> struct map<std::string> { using type = v8::String;  };
 
 	template <class T>
 	using clean_t = std::remove_const_t<std::remove_reference_t<T>>;

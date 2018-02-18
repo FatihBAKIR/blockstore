@@ -1,84 +1,43 @@
-import bindings = require("bindings");
-const native = bindings("bs-native");
-import {Block, GenHeaderHash} from "./block"
+import {Block, MineBlock, ValidateBlock, ValidBlock} from "./Block"
+import {Payload, Put} from "./BlockPayload"
 
+(async()=>{
+    // Create a new payload with a single put
+    const payload = new Payload();
+    payload.Add(new Put("hello", "world"));
 
-type Op = Get | Put | Upd | Del;
+    // Create a new block from that payload
+    const block = new Block<Payload>(payload);
+    
+    /**
+     * Mine the block
+     * 
+     * Note that this has the type ValidBlock<Payload> instead
+     * of regular BlocK<Payload>
+     */
+    const mined : ValidBlock<Payload> = await MineBlock(block);
+    console.log(JSON.stringify(mined));
 
-class Get
-{
-  key: string;
-}
+    /**
+     * Validate the original block with the
+     * just calculated nonce value
+     * Return value is again a validated block   
+     */
+    const validated : ValidBlock<Payload> = await ValidateBlock(block, mined.nonce);
+    console.log(JSON.stringify(validated));
 
-class Put
-{
-    key: string;
-    val: string;
-}
-
-class Upd
-{
-    key: string;
-    val: string;
-}
-
-class Del
-{
-    key: string;
-}
-
-class PlType
-{
-    ops: Array<Op>;
-}
-
-interface IKVStore
-{
-    Get(key);
-    Put(key, val);
-    Delete(key);
-    Update(key, val);
-}
-
-class BlockStore implements IKVStore {
-    Get(key: any) {
-        throw new Error("Method not implemented.");
+    /**
+     * In the case where we pass a wrong nonce to
+     * the validate function, it'll throw an
+     * exception
+     */
+    try
+    {
+        const validated = await ValidateBlock(block, mined.nonce + 1);
+        console.log(JSON.stringify(validated));
     }
-    Put(key: any, val: any) {
-        // create a new block for the operation
-        // setup block with operation
-        // compute nonce until target is found
-        // broadcast to all nodes once found
-        // call internal kv function to put value
-        throw new Error("Method not implemented.");
+    catch(err)
+    {
+        console.log(err);
     }
-    Update(key: any, val: any) {
-        throw new Error("Method not implemented.");
-    }
-    Delete(key: any) {
-        throw new Error("Method not implemented.");
-    }
-}
-
-
-const block = new Block<PlType>();
-const difficulty = 16;
-
-const begin = Date.now();
-native.mineAsync(GenHeaderHash(block), difficulty, (nonce) => {
-    const end = Date.now();
-
-    console.log("Difficulty: " + difficulty);
-    console.log("Nonce: " + nonce);
-    console.log("Time (ms): " + (end - begin));
-});
-
-
-/*let chain : Array<Block<string>>;
-let kv : IKVStore;
-
-// wait majority before calling this
-function handle_new_block(blk: Block<string>)
-{
-    chain.push(blk);
-}*/
+})();
