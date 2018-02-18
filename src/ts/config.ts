@@ -1,6 +1,6 @@
 type DificultyMode = Static | Rolling;
 
-type ReplicationMode = Sync | Async;
+type BroadcastMode = Sync | Async;
 
 type BroadcastMinGuarantee = None | Single | Double | Majority | All;
 
