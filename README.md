@@ -13,8 +13,11 @@ The system is built on nodejs using TypeScript. The lower-level elements of the 
 git clone git@github.com:FatihBAKIR/blockchain.git
 ```
 
-2. Install the node packages
+2. Install the node packages in src/{cpp,ts}
 ```
+cd src/cpp
+npm install
+cd src/ts
 npm install
 ```
 
@@ -72,5 +75,5 @@ tsc
 
 9. Use node to start the server
 ```
-node index.js
+node build/index.js
 ```
