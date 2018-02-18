@@ -7,7 +7,7 @@ app.disable("etag");
 app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
-})); 
+}));
 
 const port = 8080;
 app.listen(port, "0.0.0.0");

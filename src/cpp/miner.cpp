@@ -5,11 +5,11 @@
 template< typename I >
 void print_uint(I value)
 {
-    static_assert(std::is_unsigned< I >::value, "!");
+  static_assert(std::is_unsigned< I >::value, "!");
 	std::string output;
 	char lookup[] = {
-		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-		'A', 'B', 'C', 'D', 'E', 'F'
+		'0', '1', '2', '3', '4', '5', '6', '7', 
+    '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 	};
 	
 	if (value)
@@ -39,10 +39,9 @@ void print_uint(I value)
 	std::cout << output;
 }
 
-auto hashAsync(std::string payload_hash, int diff)
+auto hashAsync(std::string payload_hash, int difficulty)
 {
 	// this block is executed in a thread
-
 	MD5 hash;
 	hash.update(payload_hash.data(), payload_hash.size());
 
@@ -53,7 +52,7 @@ auto hashAsync(std::string payload_hash, int diff)
 		tmp.update(reinterpret_cast<uint8_t*>(&nonce), sizeof nonce);
 		tmp.finalize();
 		
-		if ((tmp.get_digest() >> (128 - diff)) == 0)
+		if ((tmp.get_digest() >> (128 - difficulty)) == 0)
 		{
 			/*std::cout << "orig: ";
 			print_uint(tmp.get_digest());

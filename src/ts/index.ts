@@ -1,7 +1,9 @@
 import bindings = require("bindings");
 const native = bindings("addon");
-import {Block, GenHeaderHash} from "./Block"
+import {Block, GenHeaderHash} from "./block"
 
+
+type Op = Get | Put | Upd | Del;
 
 class Get
 {
@@ -24,8 +26,6 @@ class Del
 {
     key: string;
 }
-
-type Op = Get | Put | Upd | Del;
 
 class PlType
 {
@@ -60,13 +60,17 @@ class BlockStore implements IKVStore {
     }
 }
 
+
 const block = new Block<PlType>();
+const difficulty = 16;
 
 const begin = Date.now();
-native.mineAsync(GenHeaderHash(block), 20, (nonce) => {
+native.mineAsync(GenHeaderHash(block), difficulty, (nonce) => {
     const end = Date.now();
-    console.log(20, nonce);
-    console.log(end - begin);
+
+    console.log("Difficulty: " + difficulty);
+    console.log("Nonce: " + nonce);
+    console.log("Time (ms): " + (end - begin));
 });
 
 

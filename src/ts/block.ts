@@ -25,5 +25,5 @@ export function GenHeaderHash<T>(block : Block<T>) {
     }
   }
 
-  return hash;
+  return md5(hash);
 }
