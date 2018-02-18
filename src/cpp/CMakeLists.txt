@@ -8,13 +8,21 @@ project (addon)
 include_directories(${CMAKE_JS_INC})
 set(CMAKE_CXX_STANDARD 17)
 
-set(SOURCE_FILES bind.hpp addon.cpp md5.hpp md5.cpp miner.hpp miner.cpp)
+set(SOURCE_FILES 
+    include/bs/bind.hpp 
+    src/addon.cpp 
+    include/bs/md5.hpp 
+    src/md5.cpp 
+    include/bs/miner.hpp 
+    src/miner.cpp
+)
 
 # This line will tell CMake that we're building a shared library
 # from the above source files
 # named after the project's name
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES cxx_standard 14)
+target_include_directories(${PROJECT_NAME} PUBLIC "include")
 
 # This line will give our library file a .node extension without any "lib" prefix
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")

@@ -17,13 +17,13 @@ export class Block<PayloadT>
 }
 
 export function GenHeaderHash<T>(block : Block<T>) {
-  const hash = "";
+  const headerStr = "";
 
   for(let property in block) {
     if(block.hasOwnProperty(property)) {
-      hash.concat(property.toString());
+      headerStr.concat(property.toString());
     }
   }
 
-  return md5(hash);
+  return md5(headerStr);
 }

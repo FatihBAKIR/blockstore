@@ -2,11 +2,13 @@
 .vs/
 **/.vscode
 bower_components/
-node_modules/
 
-#Exclude tsc generated files
+# Exclude tsc generated files
 **/*.js.map
 **/*.js
+
+# Ignore node modules
+**/node_modules/
 
 # Cmake build dir
 **/build/

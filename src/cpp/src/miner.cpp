@@ -1,6 +1,6 @@
-#include "miner.hpp"
-#include "bind.hpp"
-#include "md5.hpp"
+#include <bs/miner.hpp>
+#include <bs/bind.hpp>
+#include <bs/md5.hpp>
 
 template< typename I >
 void print_uint(I value)

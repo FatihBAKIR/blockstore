@@ -1,5 +1,5 @@
 import bindings = require("bindings");
-const native = bindings("addon");
+const native = bindings("bs-native");
 import {Block, GenHeaderHash} from "./block"
 
 
