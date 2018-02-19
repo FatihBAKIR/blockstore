@@ -22,13 +22,13 @@ export class DummyKV implements IKVStore
         return true;
     }
 
-    Delete(key: string) : boolean {
-        delete this._kv[key];
+    Update(key: string, val: string) : boolean {
+        this._kv[key] = val;
         return true;
     }
 
-    Update(key: string, val: string) : boolean {
-        this._kv[key] = val;
+    Delete(key: string) : boolean {
+        delete this._kv[key];
         return true;
     }
 

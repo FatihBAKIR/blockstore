@@ -33,7 +33,7 @@ export class Config
   // The metric to be used for calculating the difficulty of Appending a Block
   //
   // - Static: the difficulty is a predetermined number of 0's that the computed hash must
-  //    have as its most signifigant bits. This value is defined as difficultyTargetValue
+  //    have as its most significant bits. This value is defined as difficultyTargetValue
   // - Rolling: the difficulty will be adjusted dynamically in response to how quickly blocks
   //    are being Appended, targeting a predetermined time value. This value is defined as 
   //    difficultyTargetValue
@@ -41,7 +41,7 @@ export class Config
 
   // A value used to control the difficulty of the Append algorithm
   //
-  // - If difficultyMode is set to Static, this value is the number of most-signifigant 0 
+  // - If difficultyMode is set to Static, this value is the number of most-significant 0 
   //    bits in the hash computed by the Append algorithm
   // - If difficultyMode is set to Rolling, this value is the number in milliseconds that
   //    the system should target for how long the Append algorithm takes on average
@@ -51,7 +51,7 @@ export class Config
   //
   // - Sync: an operation will block until the number of chains that have responded with
   //    accepting the new block is broadcastMinGaurantee
-  // - Async: an operation will return (succesfully) without waiting for the number of chains
+  // - Async: an operation will return (successfully) without waiting for the number of chains
   //    defined by broadcastMinGaurantee to reply
   broadcastMode: BroadcastMode;
 
@@ -60,10 +60,10 @@ export class Config
   //
   // OPTIONAL: This property is only used when 'broadcastMode' is set to 'Sync'
   //
-  // NOTE: This is a minimum; the system always attempts to achieve eventual consistancy among 
+  // NOTE: This is a minimum; the system always attempts to achieve eventual consistency among 
   // all of the chains
   //
-  // - None: no replicas are gauranteed to exist. Thus, the original block is the only block
+  // - None: no replicas are guaranteed to exist. Thus, the original block is the only block
   // - Single: one replica of the original block has been accepted
   // - Double: two replicas of the original block has been accepted
   // - Majority: a majority of the known alive replica nodes have accepted the block

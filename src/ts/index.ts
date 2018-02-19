@@ -1,11 +1,11 @@
 import {Block, MineBlock, ValidateBlock, ValidBlock, Header} from "./Block"
-import {Payload, Put, Del, Upd} from "./BlockPayload"
+import {OpType, Op, Put, Upd, Del, Payload} from "./Operation"
 import {BlockChain} from "./BlockChain"
 
 (async()=>{
     // Create a new payload with a single put
     const payload = new Payload();
-    payload.Add(new Put("hello", "world"));
+    payload.Add(new Put(new Op(1, OpType.Put, "hello"), "world"));
 
     const header = new Header("00000000000000000000000000000000", 16);
 
@@ -56,12 +56,12 @@ import {BlockChain} from "./BlockChain"
      */
     const h2 = new Header(chain.Tail().hash, 16);
     const p2 = new Payload();
-    p2.Add(new Del("hello"));
+    p2.Add(new Del(new Op(1, OpType.Del, "hello")));
 
     const valid2 = await MineBlock(new Block<Payload>(p2, h2));
     console.log("New hash:", valid2.header.prevHash);
 
-    p2.Add(new Upd("hello", "foo"));
+    p2.Add(new Upd(new Op(1, OpType.Upd, "hello"), "foo"));
 
     await chain.Append(valid2);
     console.log("Tail hash:", chain.Tail().hash);

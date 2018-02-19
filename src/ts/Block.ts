@@ -23,6 +23,7 @@ export class Block<PayloadT>
 {
   readonly header: Header;
   readonly payload: Readonly<PayloadT>;
+
   constructor(payload: PayloadT, header: Header)
   {
     this.header = header; // no need to deep copy, it's read only
@@ -34,6 +35,7 @@ export class ValidBlock<PayloadT> extends Block<PayloadT>
 {
   readonly nonce: number;
   readonly hash: string;
+
   private constructor(blk: Block<PayloadT>, nonce: number, hash: string)
   {
     super(blk.payload, blk.header);
@@ -89,10 +91,5 @@ function Hash<T>(block: ValidBlock<T>): Promise<string>
 }
 
 function GenHeaderHash<T>(block : Block<T>) {
-  let headerStr = "";
-
-  const b = new Block<T>(block.payload, block.header)
-  headerStr = JSON.stringify(b);
-
-  return md5(headerStr);
+  return md5(JSON.stringify(new Block<T>(block.payload, block.header)));
 }

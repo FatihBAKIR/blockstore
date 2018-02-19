@@ -1,6 +1,6 @@
 import { IKVStore } from "./IKVStore";
 import { BlockChain } from "./BlockChain";
-import { Payload } from "./BlockPayload";
+import { Payload } from "./Operation";
 import { DummyKV } from "./DummyKVStore";
 import { Config } from "./Config";
 

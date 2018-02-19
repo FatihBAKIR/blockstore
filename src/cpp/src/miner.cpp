@@ -70,10 +70,7 @@ auto mine_async(std::string payload_hash, int difficulty)
 		nonce++;
 	}
 
-	return [=](auto cb){
-		// this block is executed in the node event loop
-		cb(nonce, hashdig);
-	};
+	return [=](auto cb){ cb(nonce, hashdig); };
 }
 
 auto validate_async(std::string payload_hash, int difficulty, uint32_t nonce)
