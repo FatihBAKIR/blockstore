@@ -39,12 +39,13 @@ void print_uint(I value)
 	std::cout << output;
 }
 
-auto hash_async(std::string payload_hash, int difficulty)
+auto mine_async(std::string payload_hash, int difficulty)
 {
 	// this block is executed in a thread
 	MD5 hash;
 	hash.update(payload_hash.data(), payload_hash.size());
 
+	std::string hashdig;
 	uint32_t nonce = 0;
 	while (nonce != 0xFFFFFFFF)
 	{
@@ -63,6 +64,7 @@ auto hash_async(std::string payload_hash, int difficulty)
 			std::cout << '\n';
 
 			std::cout << "found: " << tmp.hexdigest() << '\n';*/
+			hashdig = tmp.hexdigest();
 			break;
 		}
 		nonce++;
@@ -70,7 +72,7 @@ auto hash_async(std::string payload_hash, int difficulty)
 
 	return [=](auto cb){
 		// this block is executed in the node event loop
-		cb(nonce);
+		cb(nonce, hashdig);
 	};
 }
 
@@ -82,7 +84,7 @@ auto validate_async(std::string payload_hash, int difficulty, uint32_t nonce)
 	hash.finalize();
 	bool res = (hash.get_digest() >> (128 - difficulty)) == 0;
 
-	return [=](auto cb){ cb(res); };
+	return [=](auto cb){ cb(res, hash.hexdigest()); };
 }
 
 auto hash_async(std::string payload_hash, uint32_t nonce)
@@ -95,7 +97,7 @@ auto hash_async(std::string payload_hash, uint32_t nonce)
 }
 
 NAN_METHOD(MineAsync) { 
-	meta::bind(hash_async, info); 
+	meta::bind(mine_async, info); 
 }
 
 NAN_METHOD(ValidateAsync) { 

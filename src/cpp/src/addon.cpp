@@ -14,6 +14,8 @@ NAN_MODULE_INIT(InitAll) {
     GetFunction(New<FunctionTemplate>(MineAsync)).ToLocalChecked());
   Set(target, New<String>("ValidateAsync").ToLocalChecked(),
     GetFunction(New<FunctionTemplate>(ValidateAsync)).ToLocalChecked());
+  Set(target, New<String>("HashAsync").ToLocalChecked(),
+    GetFunction(New<FunctionTemplate>(HashAsync)).ToLocalChecked());
 }
 
 NODE_MODULE(addon, InitAll)

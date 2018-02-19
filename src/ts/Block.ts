@@ -33,17 +33,19 @@ export class Block<PayloadT>
 export class ValidBlock<PayloadT> extends Block<PayloadT>
 {
   readonly nonce: number;
-  private constructor(blk: Block<PayloadT>, nonce: number)
+  readonly hash: string;
+  private constructor(blk: Block<PayloadT>, nonce: number, hash: string)
   {
     super(blk.payload, blk.header);
     this.nonce = nonce;
+    this.hash = hash;
   }
 
   static async MineBlock<PayloadT>(blk: Block<PayloadT>) : Promise<ValidBlock<PayloadT>>
   {
     return new Promise<ValidBlock<PayloadT>>((res, rej) => {
-      bsnative.MineAsync(GenHeaderHash(blk), blk.header.diff, nonce => {
-        const result = new ValidBlock<PayloadT>(blk, nonce);
+      bsnative.MineAsync(GenHeaderHash(blk), blk.header.diff, (nonce, hash) => {
+        const result = new ValidBlock<PayloadT>(blk, nonce, hash);
         res(result);
       });
     });
@@ -52,10 +54,10 @@ export class ValidBlock<PayloadT> extends Block<PayloadT>
   static async Validate<PayloadT>(blk: Block<PayloadT>, nonce: number) : Promise<ValidBlock<PayloadT>>
   {
     return new Promise<ValidBlock<PayloadT>>((res, rej) => {
-      bsnative.ValidateAsync(GenHeaderHash(blk), blk.header.diff, nonce, is_valid => {
+      bsnative.ValidateAsync(GenHeaderHash(blk), blk.header.diff, nonce, (is_valid, hash) => {
         if (is_valid)
         {
-          const result = new ValidBlock<PayloadT>(blk, nonce);
+          const result = new ValidBlock<PayloadT>(blk, nonce, hash);
           res(result);
         }
         else
@@ -89,7 +91,8 @@ export function Hash<T>(block: ValidBlock<T>): Promise<string>
 function GenHeaderHash<T>(block : Block<T>) {
   let headerStr = "";
 
-  headerStr = JSON.stringify(block);
+  const b = new Block<T>(block.payload, block.header)
+  headerStr = JSON.stringify(b);
 
   return md5(headerStr);
 }
