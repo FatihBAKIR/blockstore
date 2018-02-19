@@ -2,14 +2,15 @@ import * as sockio from "socket.io";
 import { ValidBlock, Block, ValidateBlock } from "./Block";
 import  client = require('socket.io-client');
 import {BSON} from "bson";
+import { setTimeout, clearTimeout } from "timers";
 
 export class Replica
 {
     sock: SocketIOClient.Socket;
 
-    constructor()
+    constructor(host: string, port: number)
     {
-        this.sock = client.connect("http://localhost:3000", {reconnection: true});
+        this.sock = client.connect(`http://${host}:${port}`, {reconnection: true});
         const self = this;
         this.sock.on('connect', () => {});
         this.sock.on("ack_block", (hash: string) => {
@@ -17,23 +18,36 @@ export class Replica
         });
     }
     
-    Replicate<T>(blk: ValidBlock<T>)
+    Replicate<T>(blk: ValidBlock<T>, timeout: number = 5000) : Promise<void>
     {
-        this.sock.emit('new_block', new BSON().serialize(blk));
+        return new Promise<void>((res, rej)=>{
+            this.sock.emit('new_block', new BSON().serialize(blk));
+            const to = setTimeout(() => {
+                this.sock.off(`ack_${blk.hash}`);
+                rej("timeout");
+            }, timeout);
+            this.sock.on(`ack_${blk.hash}`, () => {
+                this.sock.off(`ack_${blk.hash}`);
+                clearTimeout(to);
+                res();
+            });
+        });
     }
 
     private HandleAck(blkHash: string)
     {
-        console.log(`${blkHash} got acked!`);
+        //console.log(`${blkHash} got acked!`);
     }
 }
 
 export class LocalEnd<T>
 {
+    cluster: Cluster<T>;
     io: SocketIO.Server;
-    constructor()
+    constructor(cluster: Cluster<T>, port: number)
     {
-        this.io = sockio.listen(3000);
+        this.cluster = cluster;
+        this.io = sockio.listen(port);
         const self = this;
         this.io.on('connection', (sock: SocketIO.Socket) => {
             sock.on("new_block", (x: Buffer) => {
@@ -43,14 +57,14 @@ export class LocalEnd<T>
     }
 
     private async HandleBlock(sock: SocketIO.Socket, x: Buffer)
-    {
-        console.log(`got block`);
-        
+    {        
         const raw = new BSON().deserialize(x);
         const blk = new Block<T>(raw.payload, raw.header);
         try
         {
             const valid = await ValidateBlock(blk, raw.nonce);
+            await this.cluster.Received(valid);
+            sock.emit(`ack_${valid.hash}`);
             sock.emit("ack_block", valid.hash);
         }
         catch (err)
@@ -60,14 +74,48 @@ export class LocalEnd<T>
     }
 }
 
-class Cluster
+export class Cluster<T>
 {
-    Replicate<T>(blk: ValidBlock<T>)
+    constructor(port: number)
     {
-        for (const r of this.replicas)
+        this.pending = {};
+        console.log(port);
+        this.local = new LocalEnd<T>(this, port);
+    }
+
+    async Replicate(blk: ValidBlock<T>)
+    {
+        this.pending[blk.hash] = { blk: blk, count: 0, commit: false };
+
+        await this.replicas.map(r => r.Replicate(blk));
+    }
+
+    async Received(blk: ValidBlock<T>)
+    {
+        if (!this.pending[blk.hash])
         {
-            r.Replicate(blk);
+            await this.Replicate(blk);
+        }
+        
+        this.pending[blk.hash].count++;
+        if (!this.pending[blk.hash].commit && this.pending[blk.hash].count > Math.floor(this.replicas.length / 2))
+        {
+            console.log(`Commit ${blk.hash}`);
+            this.pending[blk.hash].commit = true;
         }
     }
+
+    AddReplica(host: string, port: number)
+    {
+        this.replicas.push(new Replica(host, port));
+    }
+
+    Local() : LocalEnd<T>
+    {
+        return this.local;
+    }
+
+    private local: LocalEnd<T>;
     private replicas: Array<Replica> = [];
+    private pending: { [hash: string] : { blk: ValidBlock<T>, count: number, commit: boolean } };
 }
