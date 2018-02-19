@@ -1,9 +1,8 @@
-type Op = Put | Upd | Del;
-
 export class Put
 {
-    key: string;
-    val: string;
+    readonly kind = "put";
+    readonly key: string;
+    readonly val: string;
     constructor(key: string, val: string)
     {
         this.key = key;
@@ -13,8 +12,9 @@ export class Put
 
 export class Upd
 {
-    key: string;
-    val: string;
+    readonly kind = "upd";
+    readonly key: string;
+    readonly val: string;
     constructor(key: string, val: string)
     {
         this.key = key;
@@ -24,12 +24,15 @@ export class Upd
 
 export class Del
 {
-    key: string;
+    readonly kind = "del";
+    readonly key: string;
     constructor(key: string)
     {
         this.key = key;
     }
 }
+
+type Op = Put | Upd | Del;
 
 export class Payload
 {

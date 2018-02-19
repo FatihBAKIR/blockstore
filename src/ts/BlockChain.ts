@@ -1,4 +1,4 @@
-import {Block, MineBlock, ValidateBlock, ValidBlock, Hash} from "./Block"
+import {Block, MineBlock, ValidateBlock, ValidBlock} from "./Block"
 
 export class BlockChain<T>
 {

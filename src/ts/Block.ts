@@ -79,7 +79,7 @@ export function ValidateBlock<T>(block: Block<T>, nonce: number) : Promise<Valid
   return ValidBlock.Validate<T>(block, nonce);
 }
 
-export function Hash<T>(block: ValidBlock<T>): Promise<string>
+function Hash<T>(block: ValidBlock<T>): Promise<string>
 {
   return new Promise<string>((res, rej) => {
     bsnative.HashAsync(GenHeaderHash(block), block.nonce, hash => {

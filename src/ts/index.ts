@@ -1,5 +1,5 @@
 import {Block, MineBlock, ValidateBlock, ValidBlock, Header} from "./Block"
-import {Payload, Put, Del} from "./BlockPayload"
+import {Payload, Put, Del, Upd} from "./BlockPayload"
 import {BlockChain} from "./BlockChain"
 
 (async()=>{
@@ -60,6 +60,8 @@ import {BlockChain} from "./BlockChain"
 
     const valid2 = await MineBlock(new Block<Payload>(p2, h2));
     console.log("New hash:", valid2.header.prevHash);
+
+    p2.Add(new Upd("hello", "foo"));
 
     await chain.Append(valid2);
     console.log("Tail hash:", chain.Tail().hash);
