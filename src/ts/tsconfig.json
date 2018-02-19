@@ -5,7 +5,10 @@
       "sourceMap": true,
       "outDir": "build",
       "strictNullChecks": true,
-      "noImplicitAny": true
+      "noImplicitAny": true,
+      "strict": true,
+      "noImplicitReturns": true,
+      "removeComments": true
     },
     "files": [
       "index.ts",
