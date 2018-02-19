@@ -1,6 +1,10 @@
 import {Block, MineBlock, ValidateBlock, ValidBlock, Header} from "./Block"
 import {OpType, Put, Upd, Del, Payload, Operation} from "./Operation"
 import {BlockChain} from "./BlockChain"
+import {LocalEnd, Replica} from "./Cluster"
+
+const le = new LocalEnd;
+const r = new Replica;
 
 (async()=>{
     // Create a new payload with a single put
@@ -27,6 +31,7 @@ import {BlockChain} from "./BlockChain"
      * of regular BlocK<Payload>
      */
     const mined : ValidBlock<Payload> = await MineBlock(block);
+    r.Replicate(mined);
     
     /**
      * Validate the original block with the
