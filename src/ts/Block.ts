@@ -22,11 +22,11 @@ export class Header
 export class Block<PayloadT>
 {
   readonly header: Header;
-  readonly payload: PayloadT;
+  readonly payload: Readonly<PayloadT>;
   constructor(payload: PayloadT, header: Header)
   {
-    this.header = header;
-    this.payload = payload;
+    this.header = header; // no need to deep copy, it's read only
+    this.payload = JSON.parse(JSON.stringify(payload)); // deep copy hack
   }
 }
 

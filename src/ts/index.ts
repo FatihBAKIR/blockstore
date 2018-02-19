@@ -52,6 +52,9 @@ import {BlockChain} from "./BlockChain"
         console.log("Error:", err);
     }
 
+    /**
+     * Push another block that deletes the previous one
+     */
     const h2 = new Header(chain.Tail().hash, 16);
     const p2 = new Payload();
     p2.Add(new Del("hello"));
