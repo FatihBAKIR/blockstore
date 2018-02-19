@@ -7,12 +7,16 @@ import { setTimeout, clearTimeout } from "timers";
 export class Replica
 {
     sock: SocketIOClient.Socket;
+    connected: boolean;
 
     constructor(host: string, port: number)
     {
+        this.connected = false;
         this.sock = client.connect(`http://${host}:${port}`, {reconnection: true});
         const self = this;
-        this.sock.on('connect', () => {});
+        this.sock.on('connect', () => {
+            self.connected = true;
+        });
         this.sock.on("ack_block", (hash: string) => {
             self.HandleAck(hash);
         });
@@ -21,6 +25,10 @@ export class Replica
     Replicate<T>(blk: ValidBlock<T>, timeout: number = 5000) : Promise<void>
     {
         return new Promise<void>((res, rej)=>{
+            if (!this.connected)
+            {
+                rej("not connected");
+            }
             this.sock.emit('new_block', new BSON().serialize(blk));
             const to = setTimeout(() => {
                 this.sock.off(`ack_${blk.hash}`);
@@ -83,11 +91,36 @@ export class Cluster<T>
         this.local = new LocalEnd<T>(this, port);
     }
 
-    async Replicate(blk: ValidBlock<T>)
+    Replicate(blk: ValidBlock<T>) : Promise<void>
     {
-        this.pending[blk.hash] = { blk: blk, count: 0, commit: false };
+        return new Promise<void>((res, rej) => {
+            if (!this.pending[blk.hash])
+            {
+                this.pending[blk.hash] = { blk: blk, count: 0, commit: false };
+            }
+    
+            let accept = 0;
+            let done = 0;
 
-        await this.replicas.map(r => r.Replicate(blk));
+            const self = this;
+            for (const r of this.replicas)
+            {
+                r.Replicate(blk).then(() => {
+                    accept += 1;
+                    done += 1;
+                    if (accept + 1 > self.replicas.length / 2)
+                    {
+                        res();
+                    }
+                }).catch(err => {
+                    done += 1;
+                    if (done == self.replicas.length)
+                    {
+                        rej("majority rejected");
+                    }
+                });
+            }
+        });
     }
 
     async Received(blk: ValidBlock<T>)
@@ -98,9 +131,11 @@ export class Cluster<T>
         }
         
         this.pending[blk.hash].count++;
-        if (!this.pending[blk.hash].commit && this.pending[blk.hash].count > Math.floor(this.replicas.length / 2))
+        if (!this.pending[blk.hash].commit && 
+            this.pending[blk.hash].count > Math.floor(this.replicas.length / 2))
         {
             console.log(`Commit ${blk.hash}`);
+            console.log(this.pending[blk.hash]);
             this.pending[blk.hash].commit = true;
         }
     }
