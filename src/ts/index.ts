@@ -7,7 +7,7 @@ import {BlockChain} from "./BlockChain"
     const payload = new Payload();
     payload.Add(new Operation(1, new Put("hello", "world")));
 
-    const header = new Header("00000000000000000000000000000000", 16);
+    const header = new Header("00000000000000000000000000000000", 16, 100000);
 
     // Create a new block from that payload
     const block = new Block<Payload>(payload, header);
@@ -54,7 +54,7 @@ import {BlockChain} from "./BlockChain"
     /**
      * Push another block that deletes the previous one
      */
-    const h2 = new Header(chain.Tail().hash, 16);
+    const h2 = new Header(chain.Tail().hash, 16, 200000);
     const p2 = new Payload();
     p2.Add(new Operation(1, new Del("hello")));
 
