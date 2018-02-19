@@ -4,7 +4,8 @@
       "target": "es6",
       "sourceMap": true,
       "outDir": "build",
-      "strictNullChecks": true
+      "strictNullChecks": true,
+      "noImplicitAny": true
     },
     "files": [
       "index.ts",

@@ -6,7 +6,8 @@ export class DummyKV implements IKVStore
     {
         this._kv = {};
     }
-    Get(key: string) {
+    
+    Get(key: string) : string {
         return this._kv[key];
     }
 
@@ -26,9 +27,10 @@ export class DummyKV implements IKVStore
         return true;
     }
 
-    Update(key: string, val: string) {
+    Update(key: string, val: string) : boolean {
         this._kv[key] = val;
+        return true;
     }
 
-    private _kv : {};
+    private _kv : { [key: string]: string };
 }
