@@ -15,7 +15,7 @@ export class BlockChain<T>
         let tail_hash = "00000000000000000000000000000000";
         if (this.blocks.length > 0)
         {
-            tail_hash = await Hash(this.Tail());
+            tail_hash = this.Tail().hash;
         }
         if (blk.header.prevHash != tail_hash)
         {

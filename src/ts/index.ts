@@ -45,7 +45,6 @@ import {BlockChain} from "./BlockChain"
     try
     {
         await chain.Append(mined);
-
     }
     catch(err)
     {
@@ -59,8 +58,7 @@ import {BlockChain} from "./BlockChain"
     const p2 = new Payload();
     p2.Add(new Del("hello"));
 
-    const b2 = new Block<Payload>(p2, h2);
-    const valid2 = await MineBlock(b2);
+    const valid2 = await MineBlock(new Block<Payload>(p2, h2));
     console.log("New hash:", valid2.header.prevHash);
 
     await chain.Append(valid2);
