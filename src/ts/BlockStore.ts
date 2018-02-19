@@ -16,7 +16,7 @@ class BlockStore implements IKVStore {
         // call internal kv function to put value
         throw new Error("Method not implemented.");
     }
-    Update(key: string, val: string) {
+    Update(key: string, val: string) : boolean {
         throw new Error("Method not implemented.");
     }
     Delete(key: string) : boolean {

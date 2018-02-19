@@ -9,7 +9,7 @@ export class Header
 	readonly time: number;
   readonly diff: number;
 
-  constructor(prev: string, diff: number, version: number = 1, time : number = Date.now())
+  constructor(prev: string, diff: number, time : number = Date.now(), version: number = 1)
   {
     this.version = version;
     this.prevHash = prev;
