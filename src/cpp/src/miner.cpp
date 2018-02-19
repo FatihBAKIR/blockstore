@@ -1,5 +1,5 @@
 #include <bs/miner.hpp>
-#include <bs/bind.hpp>
+#include <bind/bind.hpp>
 #include <bs/md5.hpp>
 
 template< typename I >
