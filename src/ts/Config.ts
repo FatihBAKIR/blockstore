@@ -19,7 +19,7 @@ export enum BroadcastMinGuarantee
   All
 }
 
-export interface Config 
+export class Config
 {
   // Maximum data size of the Value in the Operation parameters
   operationMaxSize: number;

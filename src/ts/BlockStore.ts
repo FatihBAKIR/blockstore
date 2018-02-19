@@ -2,6 +2,7 @@ import { IKVStore } from "./IKVStore";
 import { BlockChain } from "./BlockChain";
 import { Payload } from "./BlockPayload";
 import { DummyKV } from "./DummyKVStore";
+import { Config } from "./Config";
 
 class BlockStore implements IKVStore {
     Get(key: string) : string {
@@ -22,7 +23,7 @@ class BlockStore implements IKVStore {
         throw new Error("Method not implemented.");
     }
 
-    constructor()
+    constructor(config: Config)
     {
         this.kv = new DummyKV;
         this.chain = new BlockChain<Payload>();
