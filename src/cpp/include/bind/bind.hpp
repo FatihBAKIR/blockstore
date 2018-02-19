@@ -39,6 +39,7 @@
 #include <functional>
 #include <memory>
 #include <experimental/optional>
+#include <type_traits>
 
 namespace meta
 {
@@ -52,79 +53,8 @@ namespace meta
 	 */
 	template <class...> struct list {};
 
-	using clval = const v8::Local<v8::Value>&; 
-
-	std::string extract(type<std::string>, clval t)
-	{ 	
-		return *v8::String::Utf8Value(Nan::To<v8::String>(t).ToLocalChecked()); 
-	}
-
-	int8_t extract(type<int8_t>, clval t)
-	{ return Nan::To<int64_t>(t).FromJust(); }
-	int16_t extract(type<int16_t>, clval t)
-	{ return Nan::To<int64_t>(t).FromJust(); }
-	int32_t extract(type<int32_t>, clval t)
-	{ return Nan::To<int64_t>(t).FromJust(); }
-	int64_t extract(type<int64_t>, clval t)
-	{ return Nan::To<int64_t>(t).FromJust(); }
-
-	uint8_t extract(type<uint8_t>, clval t)
-	{ return Nan::To<int64_t>(t).FromJust(); }
-	uint16_t extract(type<uint16_t>, clval t)
-	{ return Nan::To<int64_t>(t).FromJust(); }
-	uint32_t extract(type<uint32_t>, clval t)
-	{ return Nan::To<int64_t>(t).FromJust(); }
-	uint64_t extract(type<uint64_t>, clval t)
-	{ return Nan::To<int64_t>(t).FromJust(); }
-
-	float extract(type<float>, clval t)
-	{ return Nan::To<double>(t).FromJust(); }
-
-	double extract(type<double>, clval t)
-	{ return Nan::To<double>(t).FromJust(); }
-
-	bool extract(type<bool>, clval t)
-	{ return Nan::To<bool>(t).FromJust(); }
-
-	/***
-	 * This struct template maps C++ types to v8 types
-	 * Used when returning values to the v8 runtime
-	 * 
-	 * Should be specialized for each C++ type we want to
-	 * support
-	 * 
-	 * @tparam T Type of the C++ type
-	 */
-	template <class T> struct map;
-
-	template <> struct map<int8_t>   	{ using type = v8::Number;  };
-	template <> struct map<int16_t>  	{ using type = v8::Number;  };
-	template <> struct map<int32_t>  	{ using type = v8::Number;  };
-	template <> struct map<int64_t>  	{ using type = v8::Number;  };
-	template <> struct map<uint8_t>  	{ using type = v8::Number;  };
-	template <> struct map<uint16_t>  	{ using type = v8::Number;  };
-	template <> struct map<uint32_t>  	{ using type = v8::Number;  };
-	template <> struct map<uint64_t>  	{ using type = v8::Number;  };
-	template <> struct map<float>   	{ using type = v8::Number;  };
-	template <> struct map<double>   	{ using type = v8::Number;  };
-	template <> struct map<bool>   		{ using type = v8::Boolean; };
-	template <> struct map<std::string> { using type = v8::String;  };
-
 	template <class T>
 	using clean_t = std::remove_const_t<std::remove_reference_t<T>>;
-
-	template <class T>
-	using map_t = typename map<clean_t<T>>::type;
-
-	template <class T>
-	struct mapping_traits
-	{
-		/**
-		 * This is the type of the Nan::New call for the given C++ type
-		 * Useful for differentiating between MaybeLocal and Local types?
-		 */
-		using new_t = clean_t<decltype(Nan::New<map_t<T>>(std::declval<T>()))>;
-	};
 
 	/***
 	 * Converts the given C++ object into a v8 runtime local object
@@ -138,41 +68,8 @@ namespace meta
 	template <class T>
 	v8::Local<v8::Value> convert(T&& t)
 	{
-		using Nan::New;
-		using traits = mapping_traits<T>;
-		using new_t = typename traits::new_t;
-		if constexpr(std::is_same<new_t, v8::MaybeLocal<map_t<T>>>{})
-		{
-			return New<map_t<T>>(std::forward<T>(t)).ToLocalChecked();
-		}
-		else if constexpr(std::is_same<new_t, v8::Local<map_t<T>>>{})
-		{
-			return New<map_t<T>>(std::forward<T>(t));
-		}
-		else
-		{
-			static_assert("Should be a Local or MaybeLocal");
-		}
+		return convert_impl(type<clean_t<T>>{}, std::forward<T>(t));
 	}
-
-	template<class T>
-	struct function_traits;
-
-	template<class RetT, class... ArgTs> 
-	struct function_traits<RetT(*)(ArgTs...)>
-	{
-		using ret_t = RetT;
-		using arg_ts = list<clean_t<ArgTs>...>;
-		static inline constexpr auto arg_len = sizeof...(ArgTs);
-	};
-
-	template<class RetT, class... ArgTs> 
-	struct function_traits<RetT(&)(ArgTs...)>
-	{
-		using ret_t = RetT;
-		using arg_ts = list<clean_t<ArgTs>...>;
-		static inline constexpr auto arg_len = sizeof...(ArgTs);
-	};
 
 	template <class... Ts>
 	void call(Nan::Callback* cb, Ts&&... ts)
@@ -200,12 +97,12 @@ namespace meta
 			m_cb.emplace(m_fun(std::get<I>(m_args)...));
 		}
 
-		void Execute() {
+		void Execute() override {
 			exec(std::make_index_sequence<sizeof...(ArgTs)>{});
 		}
 
-		void HandleOKCallback() {
-			(*m_cb)([this](auto... args){
+		void HandleOKCallback() override {
+			(*m_cb)([this](auto&&... args){
 				call(callback, std::forward<decltype(args)>(args)...);
 			});
 		}
@@ -226,6 +123,25 @@ namespace meta
 		AsyncQueueWorker(res);
 	}
 
+	template<class T>
+	struct function_traits;
+
+	template<class RetT, class... ArgTs> 
+	struct function_traits<RetT(*)(ArgTs...)>
+	{
+		using ret_t = RetT;
+		using arg_ts = list<clean_t<ArgTs>...>;
+		static inline constexpr auto arg_len = sizeof...(ArgTs);
+	};
+
+	template<class RetT, class... ArgTs> 
+	struct function_traits<RetT(&)(ArgTs...)>
+	{
+		using ret_t = RetT;
+		using arg_ts = list<clean_t<ArgTs>...>;
+		static inline constexpr auto arg_len = sizeof...(ArgTs);
+	};
+
 	template<class FunT>
 	auto bind(FunT&& fun, const Nan::FunctionCallbackInfo<v8::Value>& info)
 	{
@@ -234,3 +150,5 @@ namespace meta
 		return bind_in(std::forward<FunT>(fun), info, std::make_index_sequence<arg_count>{}, typename traits::arg_ts{});
 	}
 }
+
+#include "bind_primitive.hpp"
