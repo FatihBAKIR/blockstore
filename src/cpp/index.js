@@ -1,1 +1,1 @@
-module.export = require("bindings")("addon");
+module.exports = require("bindings")("bs_native");
