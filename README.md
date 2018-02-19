@@ -73,7 +73,8 @@ sudo npm install -g typescript
 tsc
 ```
 
-9. Use node to start the server
+9. Use node to start the test-webserver (Http) and run calls against is (index)
 ```
+node build/Http.js
 node build/index.js
 ```
