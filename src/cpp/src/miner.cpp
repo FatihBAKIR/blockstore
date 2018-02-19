@@ -85,10 +85,23 @@ auto validate_async(std::string payload_hash, int difficulty, uint32_t nonce)
 	return [=](auto cb){ cb(res); };
 }
 
+auto hash_async(std::string payload_hash, uint32_t nonce)
+{
+	MD5 hash;
+	hash.update(payload_hash.data(), payload_hash.size());
+	hash.update(reinterpret_cast<uint8_t*>(&nonce), sizeof nonce);
+	hash.finalize();
+	return [=](auto cb){ cb(hash.hexdigest()); };
+}
+
 NAN_METHOD(MineAsync) { 
 	meta::bind(hash_async, info); 
 }
 
 NAN_METHOD(ValidateAsync) { 
 	meta::bind(validate_async, info); 
+}
+
+NAN_METHOD(HashAsync) { 
+	meta::bind(hash_async, info); 
 }

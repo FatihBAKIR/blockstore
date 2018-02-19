@@ -1,13 +1,24 @@
-import {Block, MineBlock, ValidateBlock, ValidBlock} from "./Block"
+import {Block, MineBlock, ValidateBlock, ValidBlock, Header} from "./Block"
 import {Payload, Put} from "./BlockPayload"
+import {BlockChain} from "./BlockChain"
 
 (async()=>{
     // Create a new payload with a single put
     const payload = new Payload();
     payload.Add(new Put("hello", "world"));
 
+    const header = new Header("00000000000000000000000000000000", 16);
+
     // Create a new block from that payload
-    const block = new Block<Payload>(payload);
+    const block = new Block<Payload>(payload, header);
+
+    const chain = new BlockChain<Payload>();
+
+    /**
+     * The below line doesn't compile because
+     * the block hasn't been mined yet
+     */
+    // chain.Append(block);
     
     /**
      * Mine the block
@@ -17,6 +28,13 @@ import {Payload, Put} from "./BlockPayload"
      */
     const mined : ValidBlock<Payload> = await MineBlock(block);
     console.log(JSON.stringify(mined));
+
+    /**
+     * This line compiles since we have a validated
+     * block now:
+     */
+    await chain.Append(mined);
+    console.log(chain.Tail().nonce);
 
     /**
      * Validate the original block with the

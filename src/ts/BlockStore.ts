@@ -1,10 +1,13 @@
 import { IKVStore } from "./IKVStore";
+import { BlockChain } from "./BlockChain";
+import { Payload } from "./BlockPayload";
+import { DummyKV } from "./DummyKVStore";
 
 class BlockStore implements IKVStore {
-    Get(key: any) {
+    Get(key: string) : string {
         throw new Error("Method not implemented.");
     }
-    Put(key: any, val: any) {
+    Put(key: string, val: string) : boolean {
         // create a new block for the operation
         // setup block with operation
         // compute nonce until target is found
@@ -12,10 +15,19 @@ class BlockStore implements IKVStore {
         // call internal kv function to put value
         throw new Error("Method not implemented.");
     }
-    Update(key: any, val: any) {
+    Update(key: string, val: string) {
         throw new Error("Method not implemented.");
     }
-    Delete(key: any) {
+    Delete(key: string) : boolean {
         throw new Error("Method not implemented.");
     }
+
+    constructor()
+    {
+        this.kv = new DummyKV;
+        this.chain = new BlockChain<Payload>();
+    }
+
+    kv: IKVStore;
+    chain: BlockChain<Payload>;
 }

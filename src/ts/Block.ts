@@ -3,26 +3,27 @@ import * as bsnative from "bs-native";
 
 export class Header
 {
-	version: number;
-	prevHash: Uint8Array;
-	merkleRoot: Uint8Array;
-	time: number;
-  diff: number;
-  constructor()
+	readonly version: number;
+	readonly prevHash: string;
+	readonly merkleRoot: Uint8Array | null;
+	readonly time: number;
+  readonly diff: number;
+
+  constructor(prev: string, diff: number, version: number = 1, time : number = Date.now())
   {
-    this.version = 1;
-    this.prevHash = new Uint8Array(16);
+    this.version = version;
+    this.prevHash = prev;
     this.merkleRoot = null;
-    this.time = Date.now();
-    this.diff = 4;
+    this.time = time;
+    this.diff = diff;
   }
 }
 
 export class Block<PayloadT>
 {
-	header: Header;
-  payload: PayloadT;
-  constructor(payload: PayloadT, header: Header = null)
+  readonly header: Header;
+  readonly payload: PayloadT;
+  constructor(payload: PayloadT, header: Header)
   {
     this.header = header;
     this.payload = payload;
@@ -31,18 +32,18 @@ export class Block<PayloadT>
 
 export class ValidBlock<PayloadT> extends Block<PayloadT>
 {
-  nonce: number;
-  private constructor(blk: Block<PayloadT>, )
+  readonly nonce: number;
+  private constructor(blk: Block<PayloadT>, nonce: number)
   {
     super(blk.payload, blk.header);
+    this.nonce = nonce;
   }
 
   static async MineBlock<PayloadT>(blk: Block<PayloadT>) : Promise<ValidBlock<PayloadT>>
   {
     return new Promise<ValidBlock<PayloadT>>((res, rej) => {
-      bsnative.MineAsync(GenHeaderHash(blk), 16, nonce => {
-        const result = new ValidBlock<PayloadT>(blk);
-        result.nonce = nonce;
+      bsnative.MineAsync(GenHeaderHash(blk), blk.header.diff, nonce => {
+        const result = new ValidBlock<PayloadT>(blk, nonce);
         res(result);
       });
     });
@@ -51,11 +52,10 @@ export class ValidBlock<PayloadT> extends Block<PayloadT>
   static async Validate<PayloadT>(blk: Block<PayloadT>, nonce: number) : Promise<ValidBlock<PayloadT>>
   {
     return new Promise<ValidBlock<PayloadT>>((res, rej) => {
-      bsnative.ValidateAsync(GenHeaderHash(blk), 16, nonce, is_valid => {
+      bsnative.ValidateAsync(GenHeaderHash(blk), blk.header.diff, nonce, is_valid => {
         if (is_valid)
         {
-          const result = new ValidBlock<PayloadT>(blk);
-          result.nonce = nonce;
+          const result = new ValidBlock<PayloadT>(blk, nonce);
           res(result);
         }
         else
@@ -75,6 +75,15 @@ export function MineBlock<T>(block: Block<T>) : Promise<ValidBlock<T>>
 export function ValidateBlock<T>(block: Block<T>, nonce: number) : Promise<ValidBlock<T>>
 {
   return ValidBlock.Validate<T>(block, nonce);
+}
+
+export function Hash<T>(block: ValidBlock<T>): Promise<string>
+{
+  return new Promise<string>((res, rej) => {
+    bsnative.HashAsync(GenHeaderHash(block), block.nonce, hash => {
+        res(hash);
+    });
+  });
 }
 
 function GenHeaderHash<T>(block : Block<T>) {
