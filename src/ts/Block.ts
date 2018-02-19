@@ -1,5 +1,6 @@
 import md5 = require('md5');
 import * as bsnative from "bs-native";
+import {BSON} from "bson";
 
 export class Header
 {
@@ -91,5 +92,7 @@ function Hash<T>(block: ValidBlock<T>): Promise<string>
 }
 
 function GenHeaderHash<T>(block : Block<T>) {
-  return md5(JSON.stringify(new Block<T>(block.payload, block.header)));
+  const bson = new BSON;
+  const s = bson.serialize(new Block<T>(block.payload, block.header));
+  return md5(s);
 }
