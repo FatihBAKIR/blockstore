@@ -1,8 +1,17 @@
 import {Block, MineBlock, ValidateBlock, ValidBlock, Header} from "./Block"
 import {OpType, Put, Upd, Del, Payload, Operation} from "./Operation"
 import {BlockChain} from "./BlockChain"
+import {ReplicatedChain} from "./ReplicatedChain"
+import {LocalEnd, Replica, Cluster} from "./Cluster"
+
+const cluster = new Cluster<Payload>(parseInt(process.argv[2]));
+cluster.AddReplica("localhost", 3000);
+cluster.AddReplica("localhost", 3001);
+cluster.AddReplica("localhost", 3002);
+
 
 (async()=>{
+    if (process.argv.length < 4) return;
     // Create a new payload with a single put
     const payload = new Payload();
     payload.Add(new Operation(1, new Put("hello", "world")));
@@ -12,7 +21,7 @@ import {BlockChain} from "./BlockChain"
     // Create a new block from that payload
     const block = new Block<Payload>(payload, header);
 
-    const chain = new BlockChain<Payload>();
+    const chain = new ReplicatedChain(cluster, new BlockChain<Payload>());
 
     /**
      * The below line doesn't compile because
@@ -28,13 +37,6 @@ import {BlockChain} from "./BlockChain"
      */
     const mined : ValidBlock<Payload> = await MineBlock(block);
     
-    /**
-     * Validate the original block with the
-     * just calculated nonce value
-     * Return value is again a validated block   
-     */
-    const validated : ValidBlock<Payload> = await ValidateBlock(block, mined.nonce);
-
     /**
      * This line compiles since we have a validated
      * block now:
@@ -65,21 +67,4 @@ import {BlockChain} from "./BlockChain"
 
     await chain.Append(valid2);
     console.log("Tail hash:", chain.Tail().hash);
-
-    /**
-     * In the case where we pass a wrong nonce to
-     * the validate function, it'll throw an
-     * exception
-     */
-    try
-    {
-        const validated = await ValidateBlock(block, mined.nonce + 1);
-        console.log(JSON.stringify(validated));
-    }
-    catch(err)
-    {
-        console.log("Error:", err);
-    }
-
-    console.log(JSON.stringify(chain.Tail()));
 })();
