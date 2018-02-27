@@ -5,7 +5,7 @@ export enum OpType
   Del
 }
 
-class Op
+abstract class Op
 {
     readonly type: OpType;
 
@@ -15,7 +15,7 @@ class Op
     }
 }
 
-class KeyedOp extends Op
+abstract class KeyedOp extends Op
 {
     readonly key: string;
 

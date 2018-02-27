@@ -37,5 +37,5 @@ export class BlockChain<T>
         this.blocks = [];
     }
 
-    private blocks : Array<ValidBlock<T>>
+    private blocks : Array<ValidBlock<T>>;
 }
