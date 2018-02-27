@@ -12,6 +12,7 @@
     },
     "files": [
       "index.ts",
-      "Http.ts"
+      "Http.ts",
+      "get.ts"
     ]
   }

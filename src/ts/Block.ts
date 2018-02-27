@@ -1,4 +1,4 @@
-import md5 = require('md5');
+mimport md5 = require('md5');
 import * as bsnative from "bs-native";
 
 export class Header

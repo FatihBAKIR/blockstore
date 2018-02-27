@@ -18,7 +18,8 @@ class Op
 class KeyedOp extends Op
 {
     readonly key: string;
-    constructor(key: string, type: OpType)
+
+    constructor(type: OpType, key: string)
     {
         super(type);
         this.key = key;
@@ -31,7 +32,7 @@ export class Put extends KeyedOp
 
     constructor(key: string, val: string)
     {
-        super(key, OpType.Put)
+        super(OpType.Put, key)
         this.val = val;
     }
 }
@@ -42,7 +43,7 @@ export class Upd extends KeyedOp
     
     constructor(key: string, val: string)
     {
-        super(key, OpType.Upd);
+        super(OpType.Upd, key);
         this.val = val;
     }
 }
@@ -51,7 +52,7 @@ export class Del extends KeyedOp
 {
     constructor(key: string)
     {
-        super(key, OpType.Del);
+        super(OpType.Del, key);
     }
 }
 

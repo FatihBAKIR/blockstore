@@ -7,11 +7,13 @@ export class DummyKV implements IKVStore
         this._kv = {};
     }
     
-    Get(key: string) : string {
+    Get(key: string) : string 
+    {
         return this._kv[key];
     }
 
-    Put(key: string, val: string) : boolean {
+    Put(key: string, val: string) : boolean 
+    {
         if (this.Get(key) !== undefined)
         {
             return false;
@@ -22,13 +24,27 @@ export class DummyKV implements IKVStore
         return true;
     }
 
-    Update(key: string, val: string) : boolean {
+    Update(key: string, val: string) : boolean 
+    {
+        if (this.Get(key) === undefined)
+        {
+            return false;
+        }
+
         this._kv[key] = val;
+
         return true;
     }
 
-    Delete(key: string) : boolean {
+    Delete(key: string) : boolean 
+    {
+        if (this.Get(key) === undefined)
+        {
+            return false;
+        }
+
         delete this._kv[key];
+        
         return true;
     }
 
