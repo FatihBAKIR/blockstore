@@ -1,22 +1,20 @@
-mimport md5 = require('md5');
+import md5 = require('md5');
 import * as bsnative from "bs-native";
-import {BSON} from "bson";
+import { BSON } from "bson";
 
 export class Header
 {
-	readonly version: number;
-	readonly prevHash: string;
-	readonly merkleRoot: Uint8Array | null;
-	readonly time: number;
   readonly diff: number;
+  readonly prevHash: string;
+	readonly version: number;
+	readonly time: number;
 
-  constructor(prev: string, diff: number, time : number = Date.now(), version: number = 1)
+  constructor(diff: number, prevHash: string = "00000000000000000000000000000000", version: number = 1, time: number = Date.now())
   {
-    this.version = version;
-    this.prevHash = prev;
-    this.merkleRoot = null;
-    this.time = time;
     this.diff = diff;
+    this.prevHash = prevHash;
+    this.version = version;
+    this.time = time;
   }
 }
 
@@ -25,7 +23,7 @@ export class Block<PayloadT>
   readonly header: Header;
   readonly payload: Readonly<PayloadT>;
 
-  constructor(payload: PayloadT, header: Header)
+  constructor(header: Header, payload: PayloadT)
   {
     this.header = header; // no need to deep copy, it's read only
     this.payload = JSON.parse(JSON.stringify(payload)); // deep copy hack
@@ -39,7 +37,7 @@ export class ValidBlock<PayloadT> extends Block<PayloadT>
 
   private constructor(blk: Block<PayloadT>, nonce: number, hash: string)
   {
-    super(blk.payload, blk.header);
+    super(blk.header, blk.payload);
     this.nonce = nonce;
     this.hash = hash;
   }
@@ -93,6 +91,6 @@ function Hash<T>(block: ValidBlock<T>): Promise<string>
 
 function GenHeaderHash<T>(block : Block<T>) {
   const bson = new BSON;
-  const s = bson.serialize(new Block<T>(block.payload, block.header));
+  const s = bson.serialize(new Block<T>(block.header, block.payload));
   return md5(s);
 }

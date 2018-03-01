@@ -1,0 +1,94 @@
+# verbose.yaml
+# A sample config file with documentation about the semantics of each property, and a base
+# for creating new config files
+
+# Operations: individual units of operation against the datastore, such as a PUT or DELETE
+operation:
+  # Description: Maximum data size the Value parameter in an Operation can contain
+  # Presence: Required
+  # Values: Unsigned integers
+  # Units: Bytes
+  # Default: 1048576 (1 MiB)
+  # Min: 1
+  # Max: Number.MAX_SAFE_INTEGER
+  maxSize: 1048576
+
+
+# Blocks: Container unit for one or more Operations
+block:
+  # Description: Maximum data size a single Block can contain (excluding meta info)
+  # Presence: Required
+  # Values: Unsigned integers
+  # Units: Bytes
+  # Default: 1048576 (1 MiB)
+  # Min: 1
+  # Max: Number.MAX_SAFE_INTEGER
+  maxSize: 1048576
+
+  # Description: Maximum number of Operations a single Block can contain
+  # Presence: Required
+  # Values: Unsigned integers
+  # Units: Operations
+  # Default 128
+  # Min: 1
+  # Max: Number.MAX_SAFE_INTEGER
+  maxOperationCount: 128
+
+  # Description: The metric for calculating the difficulty of appending, or "mining", a Block
+  # Presence: Required
+  # Values:
+  # - Static: the difficulty is a predetermined number of 0's that the computed hash must
+  #   have as its most significant bits. This value is defined with targetValue
+  # - Dynamic: the difficulty will be adjusted dynamically in response to how quickly blocks
+  #   are being appended, targeting a predetermined time value. This value is defined with targetValue
+  # Units: N/A
+  # Default: Static
+  # Min: N/A
+  # Max: N/A
+  difficultyMode: Static
+
+  # Description: The value used to control the difficulty of the append algorithm
+  # Presence: Required
+  # Values:
+  # - If difficultyMode is set to Static, this value is the number of most-significant 0 
+  #   bits in the hash computed by the append algorithm. Unsigned integers
+  # - If difficultyMode is set to Dynamic, this value is the number in milliseconds that
+  #   the system should target for how long the Append algorithm takes on average. Unsigned integers
+  # Units: Bits (when difficultyMode: Static), otherwise Milliseconds (when difficultyMode: Dynamic)
+  # Default: 16
+  # Min: 1
+  # Max: 255
+  difficultyTargetValue: 16
+
+# Blockchains: A sequence of blocks which have been validated and appended, creating a log of operations
+blockchain:
+  # Description: The behavior of how new blocks are broadcasted throughout the system
+  # Presence: Required
+  # Values:
+  # - Sync: an operation will block until the number of chains that have responded with
+  #   accepting the new block is broadcastMinGaurantee
+  # - Async: an operation will return (successfully) without waiting for the number of chains
+  #   defined by broadcastMinGaurantee to reply
+  # Units: N/A
+  # Default: Async
+  # Min: N/A
+  # Max: N/A
+  broadcastMode: Async
+
+  # Description: A minimum guarantee on the number of replicas that have accepted the new block and
+  #   apended it to their chain. While this specifies a minimum, it is important to note that the system
+  #   will always tend towards all replicas knwoing about an update. When broadcastMode is Async, this
+  #   is equivalent to if it was Sync and broadcastMinGuarantee had a None value. The point being, data
+  #   in the KV store will be least-consistent in Async mode, relatively-consistent in Sync:Majority mode,
+  #   and fully-consistent in Sync:All mode
+  # Presence: Ignored (when broadcastMode: Async), otherwise Required (when broadcastMode: Sync)
+  # Values:
+  # - Single: One of the known alive replica nodes has accepted the block
+  # - Double: Two of the known alive replica nodes has accepted the block
+  # - Majority: A majority of the known alive replica nodes have accepted the block
+  # - All: All of the known alive replica nodes have accepted the block
+  # Units: N/A
+  # Default: Single (note though that this will be ignored with broadcastMode's default value)
+  # Min: N/A
+  # Max: N/A
+  broadcastMinGuarantee: Single

@@ -1,72 +1,152 @@
+import fs = require('fs');
+import yaml = require('js-yaml');
+
 export enum DificultyMode 
 {
+  Invalid,
   Static,
-  Rolling
+  Dynamic
 }
 
 export enum BroadcastMode
 {
+  Invalid,
   Sync,
   Async
 }
 
 export enum BroadcastMinGuarantee 
 {
-  None,
+  Invalid,
   Single,
   Double,
   Majority,
   All
 }
 
+// For the full summary of each field, read src/ts/example/configs/verbose.yaml
 export class Config
 {
-  // Maximum data size of the Value in the Operation parameters
-  operationMaxSize: number;
+  opMaxSize: number;
+  blkMaxSize: number;
+  blkMaxOperationCount: number;
+  blkDifficultyMode: DificultyMode;
+  blkDifficultyTargetValue: number;
+  bchnBroadcastMode: BroadcastMode;
+  bchnBroadcastMinGuarantee: BroadcastMinGuarantee;
 
-  // Maximum amount of data a single Block can contain (including meta info)
-  blockMaxSize: number;
+  private constructor ()
+  {
+    this.opMaxSize = 0;
+    this.blkMaxSize = 0;
+    this.blkMaxOperationCount = 0;
+    this.blkDifficultyMode = DificultyMode.Invalid;
+    this.blkDifficultyTargetValue = 0;
+    this.bchnBroadcastMode = BroadcastMode.Invalid;
+    this.bchnBroadcastMinGuarantee = BroadcastMinGuarantee.Invalid;
+  }
 
-  // Maximum number of Operations a single Block can contain
-  blockMaxOperationCount: number;
+  static LoadConfig(path: string) : Config
+  {
+    let doc;
 
-  // The metric to be used for calculating the difficulty of Appending a Block
-  //
-  // - Static: the difficulty is a predetermined number of 0's that the computed hash must
-  //    have as its most significant bits. This value is defined as difficultyTargetValue
-  // - Rolling: the difficulty will be adjusted dynamically in response to how quickly blocks
-  //    are being Appended, targeting a predetermined time value. This value is defined as 
-  //    difficultyTargetValue
-  difficultyMode: DificultyMode;
+    try {
+      doc = yaml.safeLoad(fs.readFileSync(path, 'utf8'));
+    } 
+    catch (e) {
+      throw new Error("Failed to read/parse the given config file");
+    }
 
-  // A value used to control the difficulty of the Append algorithm
-  //
-  // - If difficultyMode is set to Static, this value is the number of most-significant 0 
-  //    bits in the hash computed by the Append algorithm
-  // - If difficultyMode is set to Rolling, this value is the number in milliseconds that
-  //    the system should target for how long the Append algorithm takes on average
-  difficultyTargetValue: number;
+    let val;
+    let config = new Config();
 
-  // The behavior of how new blocks are broadcasted throughout the system
-  //
-  // - Sync: an operation will block until the number of chains that have responded with
-  //    accepting the new block is broadcastMinGaurantee
-  // - Async: an operation will return (successfully) without waiting for the number of chains
-  //    defined by broadcastMinGaurantee to reply
-  broadcastMode: BroadcastMode;
+    val = doc.operation.maxSize;
+    if (val && Number.isInteger(val) && val > 0 && val < Number.MAX_SAFE_INTEGER) {
+      config.opMaxSize = val;
+    }
+    else {
+      throw new Error("Config parameter for operation.maxSize missing or invalid");
+    }
 
-  // A minimum guarantee on the number of chain replicas that have accepted a new block as
-  // creating the longest chain. 
-  //
-  // OPTIONAL: This property is only used when 'broadcastMode' is set to 'Sync'
-  //
-  // NOTE: This is a minimum; the system always attempts to achieve eventual consistency among 
-  // all of the chains
-  //
-  // - None: no replicas are guaranteed to exist. Thus, the original block is the only block
-  // - Single: one replica of the original block has been accepted
-  // - Double: two replicas of the original block has been accepted
-  // - Majority: a majority of the known alive replica nodes have accepted the block
-  // - All: all of the known alive replica nodes have accepted the block
-  broadcastMinGuarantee: BroadcastMinGuarantee;
+    val = doc.block.maxSize;
+    if (val && Number.isInteger(val) && val > 0 && val < Number.MAX_SAFE_INTEGER) {
+      config.blkMaxSize = val;
+    }
+    else {
+      throw new Error("Config parameter for block.maxSize missing or invalid");
+    }
+
+    val = doc.block.maxOperationCount;
+    if (val && Number.isInteger(val) && val > 0 && val < Number.MAX_SAFE_INTEGER) {
+      config.blkMaxOperationCount = val;
+    }
+    else {
+      throw new Error("Config parameter for block.maxOperationCount missing or invalid");
+    }
+
+    if (config.blkMaxSize < config.opMaxSize) {
+      throw new Error("block.maxSize must be greater than operation.maxSize");
+    }
+    if (config.blkMaxSize < config.opMaxSize * config.blkMaxOperationCount) {
+      throw new Error("block.maxSize must be greater than operation.maxSize multiplied by block.maxOperationCount");
+    }
+
+    val = doc.block.difficultyMode;
+    if (val && (typeof val == 'string' || val instanceof String)) {
+      for (let mode in DificultyMode) {
+        if (!Number(mode) && val == String(mode)) {
+          config.blkDifficultyMode = (<any>DificultyMode)[mode];
+          break;
+        }
+      }
+      if (config.blkDifficultyMode == DificultyMode.Invalid) {
+        throw new Error("Config parameter for block.difficultyMode missing or invalid");
+      }
+    }
+    else {
+      throw new Error("Config parameter for block.difficultyMode missing or invalid");
+    }
+
+    val = doc.block.difficultyTargetValue;
+    if(val && Number.isInteger(val) && val > 0 && val < 256) {
+      config.blkDifficultyTargetValue = val;
+    }
+    else {
+      throw new Error("Config parameter for block.difficultyTargetValue missing or invalid");
+    }
+
+    val = doc.blockchain.broadcastMode;
+    if (val && (typeof val == 'string' || val instanceof String)) {
+      for (let mode in BroadcastMode) {
+        if (!Number(mode) && val == String(mode)) {
+          config.bchnBroadcastMode = (<any>BroadcastMode)[mode];
+          break;
+        }
+      }
+      if (config.bchnBroadcastMode == BroadcastMode.Invalid) {
+        throw new Error("Config parameter for blockchain.broadcastMode missing or invalid");
+      }
+    }
+    else {
+      throw new Error("Config parameter for blockchain.broadcastMode missing or invalid");
+    }
+
+    val = doc.blockchain.broadcastMinGuarantee;
+    if (val && (typeof val == 'string' || val instanceof String)) {
+      for (let mode in BroadcastMinGuarantee) {
+        if (!Number(mode) && val == String(mode)) {
+          config.bchnBroadcastMinGuarantee = (<any>BroadcastMinGuarantee)[mode];
+          break;
+        }
+      }
+      if (config.bchnBroadcastMinGuarantee == BroadcastMinGuarantee.Invalid) {
+        throw new Error("Config parameter for blockchain.broadcastMinGuarantee missing or invalid");
+      }
+    }
+    else if (config.bchnBroadcastMode != BroadcastMode.Async) {
+      throw new Error("Config parameter for blockchain.broadcastMinGuarantee missing or invalid");
+    }
+
+    return config;
+  }
 }

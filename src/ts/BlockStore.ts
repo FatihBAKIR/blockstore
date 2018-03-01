@@ -1,14 +1,17 @@
-import { IKVStore } from "./IKVStore";
-import { BlockChain } from "./BlockChain";
-import { Payload } from "./Operation";
-import { DummyKV } from "./DummyKVStore";
 import { Config } from "./Config";
+import { IKVStore } from "./IKVStore";
+import { GenericKVStore } from "./GenericKVStore";
+import { Payload } from "./Operation";
+import { Block, MineBlock, ValidateBlock, ValidBlock } from "./Block"
+import { BlockChain } from "./BlockChain";
+
 
 class BlockStore implements IKVStore {
     Get(key: string) : string {
         throw new Error("Method not implemented.");
     }
     Put(key: string, val: string) : boolean {
+
         // create a new block for the operation
         // setup block with operation
         // compute nonce until target is found
@@ -25,10 +28,12 @@ class BlockStore implements IKVStore {
 
     constructor(config: Config)
     {
-        this.kv = new DummyKV;
+        this.kv = new GenericKVStore;
         this.chain = new BlockChain<Payload>();
+        this.currentBlock = new Block<Payload>;
     }
 
     kv: IKVStore;
     chain: BlockChain<Payload>;
+    currentBlock: Block<Payload>;
 }

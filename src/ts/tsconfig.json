@@ -11,8 +11,9 @@
       "removeComments": true
     },
     "files": [
-      "index.ts",
       "Http.ts",
-      "get.ts"
+      "test/config.ts",
+      "test/index.ts",
+      "test/get.ts"
     ]
   }

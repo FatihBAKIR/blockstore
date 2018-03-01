@@ -1,6 +1,6 @@
 import { IKVStore } from "./IKVStore";
 
-export class DummyKV implements IKVStore
+export class GenericKVStore implements IKVStore
 {
     constructor()
     {

@@ -1,0 +1,16 @@
+# config.yaml
+# A default config file. For the full summary of each field, 
+# read src/ts/example/configs/verbose.yaml
+
+operation:
+  maxSize: 1048576
+
+block:
+  maxSize: 1048576
+  maxOperationCount: 128
+  difficultyMode: Static
+  difficultyTargetValue: 16
+
+blockchain:
+  broadcastMode: Async
+  broadcastMinGuarantee: Single #ignored

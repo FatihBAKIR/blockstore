@@ -2,10 +2,10 @@ import http = require('http');
 import express = require('express');
 import bodyParser = require('body-parser');
 
-import {DummyKV} from "./DummyKVStore"
+import {GenericKVStore} from "./GenericKVStore"
 import {IKVStore} from "./IKVStore"
 
-const kv : IKVStore = new DummyKV();
+const kv : IKVStore = new GenericKVStore();
 
 const app = express();
 app.disable("etag");

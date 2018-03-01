@@ -1,4 +1,4 @@
-# Blockstore (name TBD)
+# Blockstore
 
 >A distributed key-value storage system built on top of *blockchain technology*™
 

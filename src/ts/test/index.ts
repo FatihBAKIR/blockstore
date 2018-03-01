@@ -1,8 +1,8 @@
-import {Block, MineBlock, ValidateBlock, ValidBlock, Header} from "./Block"
-import {OpType, Put, Upd, Del, Payload, Operation} from "./Operation"
-import {BlockChain} from "./BlockChain"
-import {ReplicatedChain} from "./ReplicatedChain"
-import {LocalEnd, Replica, Cluster} from "./Cluster"
+import {Block, MineBlock, ValidateBlock, ValidBlock, Header} from "../Block"
+import {OpType, Put, Upd, Del, Payload, Operation} from "../Operation"
+import {BlockChain} from "../BlockChain"
+import {ReplicatedChain} from "../ReplicatedChain"
+import {LocalEnd, Replica, Cluster} from "../Cluster"
 
 const cluster = new Cluster<Payload>(parseInt(process.argv[2]));
 cluster.AddReplica("localhost", 3000);
@@ -16,10 +16,10 @@ cluster.AddReplica("localhost", 3002);
     const payload = new Payload();
     payload.Add(new Operation(1, new Put("hello", "world")));
 
-    const header = new Header("00000000000000000000000000000000", 16, 100000);
+    const header = new Header(16);
 
     // Create a new block from that payload
-    const block = new Block<Payload>(payload, header);
+    const block = new Block<Payload>(header, payload);
 
     const chain = new ReplicatedChain(cluster, new BlockChain<Payload>());
 
@@ -56,11 +56,11 @@ cluster.AddReplica("localhost", 3002);
     /**
      * Push another block that deletes the previous one
      */
-    const h2 = new Header(chain.Tail().hash, 16, 200000);
+    const h2 = new Header(16, chain.Tail().hash, 2);
     const p2 = new Payload();
     p2.Add(new Operation(1, new Del("hello")));
 
-    const valid2 = await MineBlock(new Block<Payload>(p2, h2));
+    const valid2 = await MineBlock(new Block<Payload>(h2, p2));
     console.log("New hash:", valid2.header.prevHash);
 
     p2.Add(new Operation(1, new Upd("hello", "foo")));
