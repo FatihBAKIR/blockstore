@@ -1,4 +1,4 @@
-import {Block, MineBlock, ValidateBlock, ValidBlock, Header} from "../Block"
+import {Block, MineBlock, ValidateBlock, ValidBlock, Header, OriginHash} from "../Block"
 import {OpType, Put, Upd, Del, Payload, Operation} from "../Operation"
 import {BlockChain} from "../BlockChain"
 import {ReplicatedChain} from "../ReplicatedChain"
@@ -16,7 +16,7 @@ cluster.AddReplica("localhost", 3002);
     const payload = new Payload();
     payload.Add(new Operation(1, new Put("hello", "world")));
 
-    const header = new Header(16);
+    const header = new Header(16, OriginHash, 1);
 
     // Create a new block from that payload
     const block = new Block<Payload>(header, payload);

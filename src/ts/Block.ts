@@ -9,14 +9,16 @@ export class Header
 	readonly version: number;
 	readonly time: number;
 
-  constructor(diff: number, prevHash: string = "00000000000000000000000000000000", version: number = 1, time: number = Date.now())
+  constructor(diff: number, prevHash: string, time: number, version: number = 1)
   {
     this.diff = diff;
     this.prevHash = prevHash;
-    this.version = version;
     this.time = time;
+    this.version = version;
   }
 }
+
+export const OriginHash: string = "00000000000000000000000000000000";
 
 export class Block<PayloadT>
 {
