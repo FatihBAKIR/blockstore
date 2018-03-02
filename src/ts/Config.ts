@@ -35,7 +35,7 @@ export class Config
   bchnBroadcastMode: BroadcastMode;
   bchnBroadcastMinGuarantee: BroadcastMinGuarantee;
 
-  private constructor ()
+  constructor ()
   {
     this.opMaxSize = 0;
     this.blkMaxSize = 0;

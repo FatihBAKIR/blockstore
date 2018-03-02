@@ -60,12 +60,14 @@ export type Operations = Put | Upd | Del;
 export class Operation
 {
     readonly owner: number;
+    readonly id: number;
     readonly op: Operations;
 
-    constructor(owner: number, op: Operations)
+    constructor(owner: number, id: number, op: Operations)
     {
         this.owner = owner;
         this.op = op;
+        this.id = id;
     }
 }
 

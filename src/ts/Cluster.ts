@@ -93,17 +93,17 @@ export class Cluster<T>
 
     Replicate(blk: ValidBlock<T>) : Promise<void>
     {
+        const self = this;
         return new Promise<void>((res, rej) => {
-            if (!this.pending[blk.hash])
+            if (!self.pending[blk.hash])
             {
-                this.pending[blk.hash] = { blk: blk, count: 0, commit: false };
+                self.pending[blk.hash] = { blk: blk, count: 0, commit: false };
             }
     
             let accept = 0;
             let done = 0;
 
-            const self = this;
-            for (const r of this.replicas)
+            for (const r of self.replicas)
             {
                 r.Replicate(blk).then(() => {
                     accept += 1;
@@ -119,6 +119,10 @@ export class Cluster<T>
                         rej("majority rejected");
                     }
                 });
+            }
+            if (self.replicas.length == 0)
+            {
+                res();
             }
         });
     }
