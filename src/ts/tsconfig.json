@@ -15,6 +15,6 @@
       "test/config.ts",
       "test/index.ts",
       "test/get.ts",
-      "test/fork_test.ts"
+      "test/bs_test.ts"
     ]
   }

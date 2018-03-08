@@ -62,12 +62,14 @@ export class Operation
     readonly owner: number;
     readonly id: number;
     readonly op: Operations;
+    readonly time: number;
 
-    constructor(owner: number, id: number, op: Operations)
+    constructor(owner: number, id: number, op: Operations, time: number)
     {
         this.owner = owner;
         this.op = op;
         this.id = id;
+        this.time = time;
     }
 }
 

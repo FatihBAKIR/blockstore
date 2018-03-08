@@ -28,6 +28,7 @@ export class Replica
             if (!this.connected)
             {
                 rej("not connected");
+                return;
             }
             this.sock.emit('new_block', new BSON().serialize(blk));
             const to = setTimeout(() => {
@@ -67,7 +68,9 @@ export class LocalEnd<T>
     private async HandleBlock(sock: SocketIO.Socket, x: Buffer)
     {        
         const raw = new BSON().deserialize(x);
-        const blk = new Block<T>(raw.payload, raw.header);
+        console.log(JSON.stringify(raw));
+
+        const blk = new Block<T>(raw.header, raw.payload);
         try
         {
             const valid = await ValidateBlock(blk, raw.nonce);
@@ -82,6 +85,7 @@ export class LocalEnd<T>
     }
 }
 
+type HandlerT<T> = (x: [ValidBlock<T>]) => Promise<boolean>;
 export class Cluster<T>
 {
     constructor(port: number)
@@ -89,16 +93,17 @@ export class Cluster<T>
         this.pending = {};
         console.log(port);
         this.local = new LocalEnd<T>(this, port);
+        this.handler = new Array<HandlerT<T>>();
     }
 
     Replicate(blk: ValidBlock<T>) : Promise<void>
     {
         const self = this;
         return new Promise<void>((res, rej) => {
-            if (!self.pending[blk.hash])
+            /*if (!self.pending[blk.hash])
             {
                 self.pending[blk.hash] = { blk: blk, count: 0, commit: false };
-            }
+            }*/
     
             let accept = 0;
             let done = 0;
@@ -113,6 +118,7 @@ export class Cluster<T>
                         res();
                     }
                 }).catch(err => {
+                    console.log(`err: ${err}`);
                     done += 1;
                     if (done == self.replicas.length)
                     {
@@ -120,28 +126,30 @@ export class Cluster<T>
                     }
                 });
             }
-            if (self.replicas.length == 0)
-            {
+            /*if (self.replicas.length == 0)
+            {*/
                 res();
-            }
+            //}
         });
     }
 
     async Received(blk: ValidBlock<T>)
     {
-        if (!this.pending[blk.hash])
+        /*if (!this.pending[blk.hash])
         {
             await this.Replicate(blk);
-        }
+        }*/
+
+        const res = await this.handler[0]([blk]);
         
-        this.pending[blk.hash].count++;
+        /*this.pending[blk.hash].count++;
         if (!this.pending[blk.hash].commit && 
             this.pending[blk.hash].count > Math.floor(this.replicas.length / 2))
         {
             console.log(`Commit ${blk.hash}`);
             console.log(this.pending[blk.hash]);
             this.pending[blk.hash].commit = true;
-        }
+        }*/
     }
 
     AddReplica(host: string, port: number)
@@ -154,7 +162,13 @@ export class Cluster<T>
         return this.local;
     }
 
+    AttachBlockHandler(foo: HandlerT<T>)
+    {
+        this.handler.push(foo);
+    }
+
     private local: LocalEnd<T>;
     private replicas: Array<Replica> = [];
     private pending: { [hash: string] : { blk: ValidBlock<T>, count: number, commit: boolean } };
+    private handler: Array<HandlerT<T>>;
 }

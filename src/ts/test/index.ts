@@ -14,7 +14,7 @@ cluster.AddReplica("localhost", 3002);
     if (process.argv.length < 4) return;
     // Create a new payload with a single put
     const payload = new Payload();
-    payload.Add(new Operation(1, 0, new Put("hello", "world")));
+    payload.Add(new Operation(1, 0, new Put("hello", "world"), Date.now()));
 
     const header = new Header(16, OriginHash, 1);
 
@@ -58,12 +58,12 @@ cluster.AddReplica("localhost", 3002);
      */
     const h2 = new Header(16, chain.Tail().hash, 2);
     const p2 = new Payload();
-    p2.Add(new Operation(1, 1, new Del("hello")));
+    p2.Add(new Operation(1, 1, new Del("hello"), Date.now()));
 
     const valid2 = await MineBlock(new Block<Payload>(h2, p2));
     console.log("New hash:", valid2.header.prevHash);
 
-    p2.Add(new Operation(1, 2, new Upd("hello", "foo")));
+    p2.Add(new Operation(1, 2, new Upd("hello", "foo"), Date.now()));
 
     await chain.Append(valid2);
     console.log("Tail hash:", chain.Tail().hash);
