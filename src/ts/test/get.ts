@@ -7,7 +7,7 @@ import {BlockChain} from "../BlockChain"
     const chain = new BlockChain<Payload>();
     const header = new Header(16, OriginHash, 1);
     const payload = new Payload();
-    payload.Add(new Operation(1, 0, new Put("hello", "world")));
+    payload.Add(new Operation(1, 0, new Put("hello", "world"), Date.now()));
     const block = new Block<Payload>(header, payload);
     const mined : ValidBlock<Payload> = await MineBlock(block);
     const validated : ValidBlock<Payload> = await ValidateBlock(block, mined.nonce);

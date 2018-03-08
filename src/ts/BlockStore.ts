@@ -122,34 +122,44 @@ export class BlockStore implements IKVStore {
         return this.kv.Get(key);
     }
 
-    Put(key: string, val: string) : boolean 
+    Put(key: string, val: string, time: number = Date.now()) : boolean 
     {
-        this.pool.PushBack(new Operation(1, this.next_id++, new Put(key, val)));
+        this.pool.PushBack(new Operation(1, this.next_id++, new Put(key, val), time));
         return true;
     }
 
-    Update(key: string, val: string) : boolean {
-        this.pool.PushBack(new Operation(1, this.next_id++, new Upd(key, val)));
+    Update(key: string, val: string, time: number = Date.now()) : boolean {
+        this.pool.PushBack(new Operation(1, this.next_id++, new Upd(key, val), time));
         return true;
     }
 
-    Delete(key: string) : boolean {
-        this.pool.PushBack(new Operation(1, this.next_id++, new Del(key)));
+    Delete(key: string, time: number = Date.now()) : boolean {
+        this.pool.PushBack(new Operation(1, this.next_id++, new Del(key), time));
         return true;
     }
 
-    constructor(config: Config)
+    constructor(config: Config, port: number)
     {
         this.config = config;
         this.kv = new GenericKVStore;
         this.chain = new BlockChain<Payload>();
-        this.cluster = new Cluster(3000);
+        this.cluster = new Cluster(port);
+        if (port != 3000)
+            this.cluster.AddReplica("localhost", 3000);
+        if (port != 3001)
+            this.cluster.AddReplica("localhost", 3001);
+        if (port != 3002)
+            this.cluster.AddReplica("localhost", 3002);
         this.pool = new PendingPool;
         this.config = config;
         this.logger = new winston.Logger({
             transports: [
                 new winston.transports.Console
             ]
+        });
+        const self = this;
+        this.cluster.AttachBlockHandler(async(x) => {
+            return await self.RecvBlocks(x);
         });
     }
 
@@ -218,6 +228,7 @@ export class BlockStore implements IKVStore {
         {
             // our chain is longer
 
+            this.logger.info("our fork is longer");
             const diff = Difference(fork, tail); // ops in fork but not in tail
             for (const op of diff)
             {
@@ -226,6 +237,8 @@ export class BlockStore implements IKVStore {
             
             return;
         }
+
+        this.logger.info("their fork is longer or eq");
 
         const diff = Difference(tail, fork); // ops in tail but not in fork
         for (const op of diff)
@@ -255,6 +268,40 @@ export class BlockStore implements IKVStore {
 
     private async RecvBlocks(blks: [ValidBlock<Payload>]) : Promise<boolean>
     {
+        let tHash = OriginHash;
+        if (this.chain.Tail())
+        {
+            tHash = this.chain.Tail().hash;
+        }
+        if (blks[0].header.prevHash == tHash)
+        {
+            // perfect!
+
+            this.logger.info("perfect");
+            for (const blk of blks)
+            {
+                await this.chain.Append(blk);
+                for (const op of blk.payload.ops)
+                {
+                    this.Commit(op);
+                }
+            }
+
+            return true;
+        }
+
+        const sl = this.chain.Slice(blks[0].header.prevHash);
+        if (sl.length == 0)
+        {
+            // we are missing some blocks :(
+            this.logger.info("we're missing some blocks");
+        }
+        else
+        {
+            // forked :o
+            this.logger.info("we've got a fork");
+            await this.HandleFork(blks);
+        }
         return false;
     }
 
