@@ -13,4 +13,3 @@ block:
 
 blockchain:
   broadcastMode: Async
-  broadcastMinGuarantee: Single #ignored

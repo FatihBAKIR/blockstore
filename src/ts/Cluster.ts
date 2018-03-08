@@ -1,7 +1,7 @@
 import * as sockio from "socket.io";
 import { ValidBlock, Block, ValidateBlock } from "./Block";
 import  client = require('socket.io-client');
-import {BSON} from "bson";
+import { BSON } from "bson";
 import { setTimeout, clearTimeout } from "timers";
 
 export class Replica

@@ -5,10 +5,11 @@ import { Payload } from "./Operation";
 import { Block, MineBlock, ValidateBlock, ValidBlock } from "./Block"
 import { BlockChain } from "./BlockChain";
 
-
-class BlockStore implements IKVStore {
+export class BlockStore implements IKVStore {
     Get(key: string) : string {
-        throw new Error("Method not implemented.");
+        if(this.kv.Get(key) === undefined) {
+          
+        }
     }
     Put(key: string, val: string) : boolean {
 
@@ -28,11 +29,13 @@ class BlockStore implements IKVStore {
 
     constructor(config: Config)
     {
+        this.config = config;
         this.kv = new GenericKVStore;
         this.chain = new BlockChain<Payload>();
         this.currentBlock = new Block<Payload>;
     }
 
+    config: Config;
     kv: IKVStore;
     chain: BlockChain<Payload>;
     currentBlock: Block<Payload>;
