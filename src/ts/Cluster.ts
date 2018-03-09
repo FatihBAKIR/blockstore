@@ -8,14 +8,19 @@ export class Replica
 {
     sock: SocketIOClient.Socket;
     connected: boolean;
+    host: string;
+    port: number;
 
-    constructor(host: string, port: number)
+    constructor(host: string, port: number, ownPort: number)
     {
+        this.host = host;
+        this.port = port;
         this.connected = false;
         this.sock = client.connect(`http://${host}:${port}`, {reconnection: true});
         const self = this;
         this.sock.on('connect', () => {
             self.connected = true;
+            this.sock.emit('handshake', ownPort);
         });
         this.sock.on("ack_block", (hash: string) => {
             self.HandleAck(hash);
@@ -43,6 +48,46 @@ export class Replica
         });
     }
 
+    Query<T>(begin: string, end: string, timeout: number = 5000) : Promise<ValidBlock<T>[]>
+    {
+        return new Promise<ValidBlock<T>[]>((res, rej)=>{
+            const req_id = Math.floor(Math.random() * 10000);
+            if (!this.connected)
+            {
+                rej("not connected");
+                return;
+            }
+            this.sock.emit('query', req_id, begin, end);
+            const to = setTimeout(() => {
+                this.sock.off(`reply_${req_id}`);
+                rej("timeout");
+            }, timeout);
+            this.sock.on(`reply_${req_id}`, async(reply: Buffer) => {
+                this.sock.off(`reply_${req_id}`);
+                clearTimeout(to);
+
+                const result = new Array<ValidBlock<T>>();
+                const raw = new BSON().deserialize(reply);
+                
+                for (const key in raw)
+                {
+                    const rawblk = raw[key];
+                    const blk = new Block<T>(rawblk.header, rawblk.payload);
+                    try
+                    {
+                        const valid = await ValidateBlock(blk, rawblk.nonce);
+                        result.push(valid);
+                    }
+                    catch (err)
+                    {
+                        console.log("nope", err);
+                    }
+                }
+                res(result);
+            });
+        });
+    }
+
     private HandleAck(blkHash: string)
     {
         //console.log(`${blkHash} got acked!`);
@@ -59,8 +104,16 @@ export class LocalEnd<T>
         this.io = sockio.listen(port);
         const self = this;
         this.io.on('connection', (sock: SocketIO.Socket) => {
+            sock.on("handshake", (port: number) => {
+                const sp = sock.handshake.address.split(':');
+                cluster.GotConnection(sp[sp.length - 1], port, sock);
+            });
             sock.on("new_block", (x: Buffer) => {
                 self.HandleBlock(sock, x);
+            });
+
+            sock.on("query", (req_id: number, begin: string, end: string) => {
+                self.HandleQuery(sock, req_id, begin, end);
             });
         });
     }
@@ -68,13 +121,11 @@ export class LocalEnd<T>
     private async HandleBlock(sock: SocketIO.Socket, x: Buffer)
     {        
         const raw = new BSON().deserialize(x);
-        console.log(JSON.stringify(raw));
-
         const blk = new Block<T>(raw.header, raw.payload);
         try
         {
             const valid = await ValidateBlock(blk, raw.nonce);
-            await this.cluster.Received(valid);
+            await this.cluster.Received(valid, sock);
             sock.emit(`ack_${valid.hash}`);
             sock.emit("ack_block", valid.hash);
         }
@@ -83,17 +134,28 @@ export class LocalEnd<T>
             console.log("nope", err);
         }
     }
+
+    private async HandleQuery(sock: SocketIO.Socket, req_id: number, begin: string, end: string)
+    {
+        const res = await this.cluster.DoQuery(begin, end);
+        sock.emit(`reply_${req_id}`, new BSON().serialize(res));
+    }
 }
 
-type HandlerT<T> = (x: [ValidBlock<T>]) => Promise<boolean>;
+type HandlerT<T> = (x: [ValidBlock<T>], from: Replica) => Promise<boolean>;
+type QueryHandler<T> = (begin: string, end: string) => Promise<ValidBlock<T>[]>;
+
 export class Cluster<T>
 {
-    constructor(port: number)
+    constructor(port: number, queryHandler: QueryHandler<T>)
     {
         this.pending = {};
         console.log(port);
         this.local = new LocalEnd<T>(this, port);
         this.handler = new Array<HandlerT<T>>();
+        this.localPort = port;
+        this.connMapping = {};
+        this.qHandler = queryHandler;
     }
 
     Replicate(blk: ValidBlock<T>) : Promise<void>
@@ -133,14 +195,25 @@ export class Cluster<T>
         });
     }
 
-    async Received(blk: ValidBlock<T>)
+    /**
+     * Queries the cluster for subchains that come after the given hash
+     * @param after blocks to query after the given hash
+     */
+    async Query(begin: string, end: string)
+    {
+
+    }
+
+    async Received(blk: ValidBlock<T>, from: SocketIO.Socket)
     {
         /*if (!this.pending[blk.hash])
         {
             await this.Replicate(blk);
         }*/
 
-        const res = await this.handler[0]([blk]);
+        const repl = this.MapConnection(from);
+        console.log(`got from ${repl.host}:${repl.port}`)
+        const res = await this.handler[0]([blk], repl);
         
         /*this.pending[blk.hash].count++;
         if (!this.pending[blk.hash].commit && 
@@ -154,7 +227,37 @@ export class Cluster<T>
 
     AddReplica(host: string, port: number)
     {
-        this.replicas.push(new Replica(host, port));
+        for (const repl of this.replicas)
+        {
+            if (repl.host == host && repl.port == port)
+            {
+                return repl;
+            }
+        }
+
+        const repl = new Replica(host, port, this.localPort);
+        this.replicas.push(repl);
+        return repl;
+    }
+
+    private MapConnection(sock: SocketIO.Socket) : Replica
+    {
+        return this.connMapping[sock.id];
+    }
+
+    GotConnection(host: string, port: number, sock: SocketIO.Socket)
+    {
+        for (const repl of this.replicas)
+        {
+            if (repl.host == host && repl.port == port)
+            {
+                this.connMapping[sock.id] = repl;
+                break;
+            }
+        }
+
+        const repl = this.AddReplica(host, port);
+        this.connMapping[sock.id] = repl;        
     }
 
     Local() : LocalEnd<T>
@@ -167,8 +270,16 @@ export class Cluster<T>
         this.handler.push(foo);
     }
 
+    DoQuery(begin: string, end: string)
+    {
+        return this.qHandler(begin, end);
+    }
+
     private local: LocalEnd<T>;
     private replicas: Array<Replica> = [];
     private pending: { [hash: string] : { blk: ValidBlock<T>, count: number, commit: boolean } };
     private handler: Array<HandlerT<T>>;
+    private qHandler: QueryHandler<T>;
+    private localPort: number;
+    private connMapping : { [ep: string] : Replica };
 }

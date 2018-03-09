@@ -4,7 +4,7 @@ import {BlockChain} from "../BlockChain"
 import {ReplicatedChain} from "../ReplicatedChain"
 import {LocalEnd, Replica, Cluster} from "../Cluster"
 
-const cluster = new Cluster<Payload>(parseInt(process.argv[2]));
+const cluster = new Cluster<Payload>(parseInt(process.argv[2]), async(begin, end) => { return []; });
 cluster.AddReplica("localhost", 3000);
 cluster.AddReplica("localhost", 3001);
 cluster.AddReplica("localhost", 3002);

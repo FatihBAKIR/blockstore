@@ -24,6 +24,10 @@ function delay(t: number) : Promise<void> {
         {
             await bs.Flush();
         }
+        console.log("ok");
+        await delay(5000);
+        bs.Update("key1", "yolo", 1003);
+        await bs.Flush();
     }
     else 
     {

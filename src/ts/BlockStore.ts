@@ -4,7 +4,7 @@ import { GenericKVStore } from "./GenericKVStore";
 import { Payload, Operation, Put, Upd, Del, OpType } from "./Operation";
 import { Block, MineBlock, ValidateBlock, ValidBlock, Header, OriginHash } from "./Block"
 import { BlockChain } from "./BlockChain";
-import { Cluster } from "./Cluster";
+import { Cluster, Replica } from "./Cluster";
 import * as winston from "winston";
 
 class PendingPool
@@ -128,13 +128,17 @@ export class BlockStore implements IKVStore {
         this.config = config;
         this.kv = new GenericKVStore;
         this.chain = new BlockChain<Payload>();
-        this.cluster = new Cluster(port);
+        const self = this;
+        
+        this.cluster = new Cluster(port, async(begin, end) => {
+            return self.HandleQuery(begin, end);
+        });
         if (port != 3000)
-            this.cluster.AddReplica("localhost", 3000);
+            this.cluster.AddReplica("127.0.0.1", 3000);
         if (port != 3001)
-            this.cluster.AddReplica("localhost", 3001);
+            this.cluster.AddReplica("127.0.0.1", 3001);
         if (port != 3002)
-            this.cluster.AddReplica("localhost", 3002);
+            this.cluster.AddReplica("127.0.0.1", 3002);
         this.pool = new PendingPool;
         this.config = config;
         this.logger = new winston.Logger({
@@ -142,9 +146,8 @@ export class BlockStore implements IKVStore {
                 new winston.transports.Console
             ]
         });
-        const self = this;
-        this.cluster.AttachBlockHandler(async(x) => {
-            return await self.RecvBlocks(x);
+        this.cluster.AttachBlockHandler(async(x, from) => {
+            return await self.RecvBlocks(x, from);
         });
     }
 
@@ -185,6 +188,12 @@ export class BlockStore implements IKVStore {
         return valid;
     }
 
+    private async HandleQuery(begin: string, end: string) : Promise<ValidBlock<Payload>[]>
+    {
+        const slice = this.chain.Slice(begin); //begin not included
+        return slice;
+    }
+
     private Commit(op: Operation)
     {
         this.logger.info(`Commit Attempt: ${JSON.stringify(op.op)}`);
@@ -197,7 +206,7 @@ export class BlockStore implements IKVStore {
      * 
      * @param blk forked off part of the other chain
      */
-    private async HandleFork(fork: [ValidBlock<Payload>])
+    private async HandleFork(fork: ValidBlock<Payload>[])
     {
         /**
          * 1.   find the exact node where we forked
@@ -251,7 +260,7 @@ export class BlockStore implements IKVStore {
         }
     }
 
-    private async RecvBlocks(blks: [ValidBlock<Payload>]) : Promise<boolean>
+    private async RecvBlocks(blks: ValidBlock<Payload>[], from: Replica) : Promise<boolean>
     {
         let tHash = OriginHash;
         if (this.chain.Tail())
@@ -280,6 +289,8 @@ export class BlockStore implements IKVStore {
         {
             // we are missing some blocks :(
             this.logger.info("we're missing some blocks");
+            const missing = await from.Query<Payload>(tHash, blks[0].hash);
+            return this.RecvBlocks(missing, from);
         }
         else
         {
