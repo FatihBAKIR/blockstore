@@ -83,34 +83,19 @@ function Apply(kv: IKVStore, op: Operation)
         case OpType.Put:
         {
             const oper = <Put>op.op;
-            if(kv.Put(oper.key, oper.val)) {
-              this.logger.info(`Commit Valid: ${JSON.stringify(op.op)}`);
-            }
-            else {
-              this.logger.info(`Commit Invalid: ${JSON.stringify(op.op)}`);
-            }
+            kv.Put(oper.key, oper.val);
         }
         break;
         case OpType.Upd:
         {
             const oper = <Upd>op.op;
-            if(kv.Update(oper.key, oper.val)) {
-              this.logger.info(`Commit Valid: ${JSON.stringify(op.op)}`);
-            }
-            else {
-              this.logger.info(`Commit Invalid: ${JSON.stringify(op.op)}`);
-            }
+            kv.Update(oper.key, oper.val);
         }
         break;
         case OpType.Del:
         {
             const oper = <Del>op.op;
-            if(kv.Delete(oper.key)) {
-              this.logger.info(`Commit Valid: ${JSON.stringify(op.op)}`);
-            }
-            else {
-              this.logger.info(`Commit Invalid: ${JSON.stringify(op.op)}`);
-            }
+            kv.Delete(oper.key);
         }
         break;
     }
