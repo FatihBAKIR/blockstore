@@ -121,8 +121,6 @@ export class LocalEnd<T>
     private async HandleBlock(sock: SocketIO.Socket, x: Buffer)
     {        
         const raw = new BSON().deserialize(x);
-        console.log(JSON.stringify(raw));
-
         const blk = new Block<T>(raw.header, raw.payload);
         try
         {
