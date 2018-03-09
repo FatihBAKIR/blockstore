@@ -68,7 +68,6 @@ export class Replica
 
                 const result = new Array<ValidBlock<T>>();
                 const raw = new BSON().deserialize(reply);
-                console.log(raw);
                 
                 for (const key in raw)
                 {
