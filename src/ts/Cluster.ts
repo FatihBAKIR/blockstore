@@ -142,7 +142,7 @@ export class LocalEnd<T>
     }
 }
 
-type HandlerT<T> = (x: [ValidBlock<T>], from: Replica) => Promise<boolean>;
+type HandlerT<T> = (x: ValidBlock<T>[], from: Replica) => Promise<boolean>;
 type QueryHandler<T> = (begin: string, end: string) => Promise<ValidBlock<T>[]>;
 
 export class Cluster<T>
