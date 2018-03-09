@@ -1,92 +1,74 @@
-/*
- * Path: /
- * Type: GET
- * Desc: returns a list of all valid paths
- */
-exports.root = (req, res, app) => {
-    let paths: string[] = [];
+import express = require('express');
+import { BlockStore } from './BlockStore';
+import * as multer from "multer";
 
-    for (let r of app._router.stack) {
-      if (r.route && r.route.path) {
-        paths.push(r.route.path)
-      }
-    }
-
-    res.json(paths);
-};
+const router = express.Router();
 
 /*
  * Path: /req
  * Type: GET
  * Desc: returns a list of all valid operation request handling paths
  */
-exports.req = (req, res, app) => {
+router.get("/", (req, res) => {
     let paths: string[] = [];
-    let expr = /\/op/;
+    let expr = /\/req/;
 
-    for (let r of app._router.stack) {
+    for (let r of req.app._router.stack) {
       if (r.route && r.route.path && r.route.path.match(expr)) {
         paths.push(r.route.path)
       }
     }
 
     res.status(200).json(paths);
-};
-
+});
+declare global {
+    namespace Express {
+        export interface Request {
+            bs: BlockStore;
+        }
+    }
+}
 /*
  * Path: /req/get/:key
  * Type: GET
  * Desc: specifies a key to get its corresponding value
  */
-exports.reqGet = async(req, res, bs) => {
-    const val = bs.Get(req.params.key);
+router.get("/get/:key", (req, res) => {
+    const val = req.bs.Get(req.params.key);
     res.status(200).json(val);
-};
+});
 
 /*
  * Path: /req/put
  * Type: POST
  * Desc: submits a key-value pair to be created
  */
-exports.reqPut = async(req, res, bs) => {
-    bs.Put(req.body.key, req.body.val, Date.now());
+router.post("/put", multer().fields([]), async(req, res) => {
+    req.bs.Put(req.body.key, req.body.val, Date.now());
+    await req.bs.Flush();
     res.status(201).json(req.body.val);
-};
+});
 
 /*
  * Path: /req/upd/:key
  * Type: PUT
  * Desc: submits a value to update an exisitng key-value pair
  */
-exports.reqUpd = async(req, res, bs) => {
-    bs.Update(req.params.key, req.body.val, Date.now());
+router.put("/upd/:key", multer().fields([]), async(req, res) => {
+    req.bs.Update(req.params.key, req.body.val, Date.now());
+    await req.bs.Flush();
     res.status(200).json(req.body.val);
-};
+});
 
 /*
  * Path: /req/del/:key
  * Type: DELETE
  * Desc: specifies a key to delete its entry
  */
-exports.reqDel = async(req, res, bs) => {
-    bs.Delete(req.params.key, Date.now());
+router.delete("/del/:key", async(req, res) => {
+    req.bs.Delete(req.params.key, Date.now());
+    await req.bs.Flush();
     res.status(204).end();
-};
+});
 
-/*
- * Path: /api
- * Type: GET
- * Desc: returns a list of all valid API paths
- */
-exports.api = (req, res, app) => {
-    let paths: string[] = [];
-    let expr = /\/api/;
-
-    for (let r of app._router.stack) {
-      if (r.route && r.route.path && r.route.path.match(expr)) {
-        paths.push(r.route.path)
-      }
-    }
-
-    res.json(paths);
-};
+export = router;

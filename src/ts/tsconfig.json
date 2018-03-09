@@ -15,6 +15,7 @@
       "test/config.ts",
       "test/index.ts",
       "test/get.ts",
-      "test/bs_test.ts"
+      "test/bs_test.ts",
+      "BlockstoreServer.ts"
     ]
   }

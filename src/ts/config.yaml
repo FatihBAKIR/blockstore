@@ -3,7 +3,7 @@
 # read src/ts/example/configs/verbose.yaml
 
 operation:
-  maxSize: 1048576
+  maxSize: 128
 
 block:
   maxSize: 1048576

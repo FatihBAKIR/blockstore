@@ -5,7 +5,7 @@ import bodyParser = require('body-parser');
 import { Config } from "./Config";
 import { BlockStore } from "./BlockStore";
 
-const bs : BlockStore = new BlockStore(Config.LoadConfig("./config.yaml"), 3000);
+const bs : BlockStore = new BlockStore(Config.LoadConfig("./config.yaml"), parseInt(process.argv[2]));
 
 const app = express();
 
@@ -13,18 +13,35 @@ app.disable('etag');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const port = 3000;
+const port = parseInt(process.argv[2]) - 3000 + 8000;
 const localhost = '127.0.0.1';
 
-const routes = require('./BlockstoreRoutes');
+import routes = require('./BlockstoreRoutes');
 
-app.get('/', routes.root);
-app.get('/req', routes.req);
-app.get('/req/get/:key', routes.reqGet);
-app.post('/req/put', routes.reqPut);
-app.put('/req/upd/:key', routes.reqUpd);
-app.delete('/req/del/:key', routes.reqDel);
-app.get('/api', routes.api);
+app.use((req, res, next) => {
+    req.bs = bs;
+    next();
+});
+
+/*
+ * Path: /
+ * Type: GET
+ * Desc: returns a list of all valid paths
+ */
+app.get("/", (req, res) => {
+    let paths: string[] = [];
+
+    for (let r of req.app._router.stack) {
+      if (r.route && r.route.path) {
+        paths.push(r.route.path)
+      }
+    }
+
+    res.json(paths);
+});
+
+app.use('/req', routes);
+//app.get('/api', routes.api);
 
 app.listen(port, localhost);
-console.log('Blockstore Server instance running on port ${port} (http://${localhost}:${port})');
+console.log(`Blockstore Server instance running on port ${port} (http://${localhost}:${port})`);
