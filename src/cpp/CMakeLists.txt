@@ -14,7 +14,7 @@ set(SOURCE_FILES
 )
 
 add_library(bs_native SHARED ${SOURCE_FILES})
-set_target_properties(bs_native PROPERTIES cxx_standard 14)
+set_target_properties(bs_native PROPERTIES cxx_standard 17)
 target_include_directories(bs_native PUBLIC "include")
 target_link_libraries(bs_native PUBLIC bind)
 

@@ -125,6 +125,7 @@ export class BlockStore implements IKVStore {
 
     constructor(config: Config, port: number)
     {
+        this.config = config;
         this.kv = new GenericKVStore;
         this.chain = new BlockChain<Payload>();
         const self = this;
@@ -195,7 +196,7 @@ export class BlockStore implements IKVStore {
 
     private Commit(op: Operation)
     {
-        this.logger.info(`Commit ${JSON.stringify(op.op)}`);
+        this.logger.info(`Commit Attempt: ${JSON.stringify(op.op)}`);
         Apply(this.kv, op);
     }
 
