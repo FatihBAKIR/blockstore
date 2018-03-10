@@ -20,10 +20,10 @@ block:
   # Presence: Required
   # Values: Unsigned integers
   # Units: Bytes
-  # Default: 1048576 (1 MiB)
+  # Default: 134217728 (128 MiB)
   # Min: 1
   # Max: Number.MAX_SAFE_INTEGER
-  maxSize: 1048576
+  maxSize: 134217728
 
   # Description: Maximum number of Operations a single Block can contain
   # Presence: Required

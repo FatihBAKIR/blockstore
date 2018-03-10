@@ -2,9 +2,9 @@
   "name": "bs-node",
   "version": "1.0.0",
   "description": "",
-  "main": "build/index.js",
+  "main": "build/Server.js",
   "scripts": {
-    "run": "node build/index.js"
+    "run": "node build/Server.js"
   },
   "author": "",
   "license": "ISC",

@@ -1,12 +1,12 @@
 # config.yaml
 # A default config file. For the full summary of each field, 
-# read src/ts/example/configs/verbose.yaml
+# read src/bs/ts/example/configs/verbose.yaml
 
 operation:
-  maxSize: 128
+  maxSize: 1048576
 
 block:
-  maxSize: 1048576
+  maxSize: 134217728
   maxOperationCount: 128
   difficultyMode: Static
   difficultyTargetValue: 16

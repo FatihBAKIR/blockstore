@@ -4,7 +4,7 @@
 
 ### About
 
-The system is built on nodejs using TypeScript. The lower-level elements of the code such as the blockchain functions are implemented in C++17, thus we use packages that allow for an interface between the node event loop and executing C++ functions.
+The system is built on nodejs using TypeScript. The lower-level elements of the code such as the blockchain functions are implemented in C++17, thus we use packages that allow for an interface between the node event loop and executing C++ functions. `src/app` contains a demo application consisting of creating posts, and comments on those posts, which sends HTTP requests to instances of Blockstore server nodes located in `src/bs/ts`
 
 ### Getting Started (Linux/Ubuntu)
 
@@ -13,11 +13,13 @@ The system is built on nodejs using TypeScript. The lower-level elements of the 
 git clone git@github.com:FatihBAKIR/blockchain.git
 ```
 
-2. Install the node packages in src/{cpp,ts}
+2. Install the node packages
 ```
-cd src/cpp
+cd src/app
 npm install
-cd src/ts
+cd ../bs/cpp
+npm install
+cd ../ts
 npm install
 ```
 
@@ -73,8 +75,8 @@ sudo npm install -g typescript
 tsc
 ```
 
-9. Use node to start the test-webserver (Http) and run calls against is (index)
+9. Use node to start the demo application server (app/build/index.js) or an instance of the Blockstore server (bs/ts/build/index.js)
 ```
-node build/Http.js
-node build/index.js
+node app/build/index.js
+node bs/ts/build/index.js
 ```

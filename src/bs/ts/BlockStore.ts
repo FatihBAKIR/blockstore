@@ -133,12 +133,14 @@ export class BlockStore implements IKVStore {
         this.cluster = new Cluster(port, async(begin, end) => {
             return self.HandleQuery(begin, end);
         });
-        if (port != 3000)
-            this.cluster.AddReplica("127.0.0.1", 3000);
-        if (port != 3001)
-            this.cluster.AddReplica("127.0.0.1", 3001);
-        if (port != 3002)
-            this.cluster.AddReplica("127.0.0.1", 3002);
+        
+        if (port != 8080)
+            this.cluster.AddReplica("127.0.0.1", 8080);
+        if (port != 8081)
+            this.cluster.AddReplica("127.0.0.1", 8081);
+        if (port != 8082)
+            this.cluster.AddReplica("127.0.0.1", 8082);
+          
         this.pool = new PendingPool;
         this.config = config;
         this.logger = new winston.Logger({

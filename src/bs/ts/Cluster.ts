@@ -150,7 +150,6 @@ export class Cluster<T>
     constructor(port: number, queryHandler: QueryHandler<T>)
     {
         this.pending = {};
-        console.log(port);
         this.local = new LocalEnd<T>(this, port);
         this.handler = new Array<HandlerT<T>>();
         this.localPort = port;
