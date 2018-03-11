@@ -4,10 +4,11 @@ import bodyParser = require('body-parser');
 import { Config } from './Config';
 import { BlockStore } from './BlockStore';
 
-const port : number = parseInt(process.argv[2]) || 8080;
-const address : string = '127.0.0.1';
+const address : string = '0.0.0.0';
 const config : Config = Config.LoadConfig('./config.yaml');
-const bs : BlockStore = new BlockStore(config, port);
+const externalPort : number = config.nwInternalPort || 8080;
+const internalPort : number = config.nwExternalPort || 9090;
+const bs : BlockStore = new BlockStore(config, internalPort);
 
 /*
  * App Configuration
@@ -50,5 +51,5 @@ app.get('/', (req, res) => {
     res.json(paths);
 });
 
-app.listen(port, address);
-console.log(`Blockstore Server instance running on port ${port} (http://${address}:${port})`);
+app.listen(externalPort, address);
+console.log(`Blockstore Server instance running on port ${externalPort} (http://${address}:${externalPort})`);

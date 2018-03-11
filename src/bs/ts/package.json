@@ -30,5 +30,8 @@
     "socket.io": "^2.0.4",
     "typescript": "2.7.2",
     "winston": "^2.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.1"
   }
 }
