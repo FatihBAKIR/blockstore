@@ -148,13 +148,17 @@ export class BlockStore implements IKVStore {
             return self.HandleQuery(begin, end);
         });
         
-        if (port != 8080)
-            this.cluster.AddReplica("127.0.0.1", 8080);
-        if (port != 8081)
-            this.cluster.AddReplica("127.0.0.1", 8081);
-        if (port != 8082)
-            this.cluster.AddReplica("127.0.0.1", 8082);
-          
+        const local = process.env.ip_addr || getLocalIp(config.nwHosts);
+
+        for (const ip of config.nwHosts)
+        {
+            if (ip == local)
+            {
+                continue;
+            }
+            this.cluster.AddReplica(ip, config.nwInternalPort);            
+        }
+
         this.pool = new PendingPool;
         this.config = config;
         this.logger = new winston.Logger({
@@ -197,7 +201,7 @@ export class BlockStore implements IKVStore {
         {
             tailHash = this.chain.Tail().hash;
         }
-        const header = new Header(10, tailHash, Date.now());
+        const header = new Header(this.config.blkDifficultyTargetValue, tailHash, Date.now());
         const block = new Block(header, pl);
 
         const valid = await MineBlock(block);
