@@ -6,8 +6,8 @@ import { BlockStore } from './BlockStore';
 
 const address : string = '0.0.0.0';
 const config : Config = Config.LoadConfig('./config.yaml');
-const externalPort : number = config.nwInternalPort || 8080;
-const internalPort : number = config.nwExternalPort || 9090;
+const internalPort : number = config.nwInternalPort || 8080;
+const externalPort : number = config.nwExternalPort || 9090;
 const bs : BlockStore = new BlockStore(config, internalPort);
 
 /*
@@ -52,4 +52,6 @@ app.get('/', (req, res) => {
 });
 
 app.listen(externalPort, address);
-console.log(`Blockstore Server instance running on port ${externalPort} (http://${address}:${externalPort})`);
+console.log(`Blockstore Server instance started, listening for:
+  \t- External requests on port ${externalPort} (http://${address}:${externalPort})
+  \t- Intenral communication on port ${internalPort} (http://${address}:${internalPort})`);
