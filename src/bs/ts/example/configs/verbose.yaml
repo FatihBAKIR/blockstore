@@ -92,3 +92,39 @@ blockchain:
   # Min: N/A
   # Max: N/A
   broadcastMinGuarantee: 'Single'
+
+# Network: Deployment parameters for setting up a cluster of Blockstore instances
+network:
+  # Name: internalPort
+  # Description: The port on which each Blockstore instance binds to listen for communication from
+  #   other Blockstore instances
+  # Presence: Required
+  # Values: Unisgned integers
+  # Units: Valid port numbers
+  # Default: 8080
+  # Min: 1024
+  # Max: 49151
+  internalPort: 8080
+
+  # Name: externalPort
+  # Description: The port on which each Blockstore instance binds to listen for communication from
+  #   client requests
+  # Presence: Required
+  # Values: Unisgned integers
+  # Units: Valid port numbers
+  # Default: 9090
+  # Min: 1024
+  # Max: 49151
+  internalPort: 9090
+
+  # Name: hosts
+  # Description: A list of the IP address of all Blockstore instance nodes inthe cluster, including
+  #   the current machine
+  # Presence: Required
+  # Values: IP addresses represented as strings
+  # Units: IPv4 addresses
+  # Default: a single entry with localhost
+  # Min: N/A
+  # Max: N/A
+  hosts:
+    - '127.0.0.1'

@@ -55,6 +55,7 @@ export class Config
   static LoadConfig(path: string) : Config
   {
     let doc;
+    const ipAddrRegex : RegExp = new RegExp(/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/);
 
     try {
       doc = yaml.safeLoad(fs.readFileSync(path, 'utf8'));
@@ -176,13 +177,16 @@ export class Config
     val = doc.network.hosts;
     if (val && Array.isArray(val)) {
       for (let entry of val) {
-        if (typeof entry == 'string' || entry instanceof String) {
-          config.nwHosts.push(entry.toString());
+        if ((typeof entry == 'string' || entry instanceof String) && ipAddrRegex.test(entry.toString())) {
+            config.nwHosts.push(entry.toString());
         }
         else {
           throw new Error("Config parameter for network.hosts missing or invalid");
         }
       }
+    }
+    else {
+      throw new Error("Config parameter for network.hosts missing or invalid");
     }
 
     return config;
