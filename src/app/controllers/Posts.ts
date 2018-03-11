@@ -1,5 +1,6 @@
 import express = require('express');
 import * as multer from 'multer';
+import { Datastore } from "../models/Datastore";
 
 const router = express.Router();
 
@@ -30,8 +31,18 @@ router.get('/new', (req, res) => {
  * Type: POST
  * Desc: submit a new post to be created
  */
-router.post('/', (req, res, next) => {
-    //TODO
+router.post('/', (req, res) => {
+  switch (req.datastore) {
+    case Datastore.MongoDB:
+      console.log('Request made using MongoDB...');
+      break;
+    case Datastore.Blockstore:
+      console.log('Request made using Blockstore...');
+      break;
+    default:
+      console.log('ERROR: Invalid Datastore type specified');
+      break;
+  } 
 });
 
 /*

@@ -34,6 +34,9 @@ export class Config
   blkDifficultyTargetValue: number;
   bchnBroadcastMode: BroadcastMode;
   bchnBroadcastMinGuarantee: BroadcastMinGuarantee;
+  nwInternalPort : number;
+  nwExternalPort : number;
+  nwHosts : Array<string>;
 
   constructor ()
   {
@@ -44,6 +47,9 @@ export class Config
     this.blkDifficultyTargetValue = 0;
     this.bchnBroadcastMode = BroadcastMode.Invalid;
     this.bchnBroadcastMinGuarantee = BroadcastMinGuarantee.Invalid;
+    this.nwInternalPort = 0;
+    this.nwExternalPort = 0;
+    this.nwHosts = new Array<string>();
   }
 
   static LoadConfig(path: string) : Config
@@ -60,6 +66,7 @@ export class Config
     let val;
     let config = new Config();
 
+    // Operation parsing
     val = doc.operation.maxSize;
     if (val && Number.isInteger(val) && val > 0 && val < Number.MAX_SAFE_INTEGER) {
       config.opMaxSize = val;
@@ -68,6 +75,7 @@ export class Config
       throw new Error("Config parameter for operation.maxSize missing or invalid");
     }
 
+    // Block parsing
     val = doc.block.maxSize;
     if (val && Number.isInteger(val) && val > 0 && val < Number.MAX_SAFE_INTEGER) {
       config.blkMaxSize = val;
@@ -131,6 +139,7 @@ export class Config
       throw new Error("Config parameter for blockchain.broadcastMode missing or invalid");
     }
 
+    // Blockchain parsing
     val = doc.blockchain.broadcastMinGuarantee;
     if (val && (typeof val == 'string' || val instanceof String)) {
       for (let mode in BroadcastMinGuarantee) {
@@ -145,6 +154,35 @@ export class Config
     }
     else if (config.bchnBroadcastMode != BroadcastMode.Async) {
       throw new Error("Config parameter for blockchain.broadcastMinGuarantee missing or invalid");
+    }
+
+    // Network parsing
+    val = doc.network.internalPort;
+    if (val && Number.isInteger(val) && val > 1023 && val < 49152) {
+      config.nwInternalPort = val;
+    }
+    else {
+      throw new Error("Config parameter for network.internalPort missing or invalid");
+    }
+
+    val = doc.network.externalPort;
+    if (val && Number.isInteger(val) && val > 1023 && val < 49152) {
+      config.nwExternalPort = val;
+    }
+    else {
+      throw new Error("Config parameter for network.externalPort missing or invalid");
+    }
+
+    val = doc.network.hosts;
+    if (val && Array.isArray(val)) {
+      for (let entry of val) {
+        if (typeof entry == 'string' || entry instanceof String) {
+          config.nwHosts.push(entry.toString());
+        }
+        else {
+          throw new Error("Config parameter for network.hosts missing or invalid");
+        }
+      }
     }
 
     return config;

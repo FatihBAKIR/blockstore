@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <% include ../partials/head.ejs %>
+</head>
+<body id="page-default">
+  <header>
+    <% include ../partials/header.ejs %>
+  </header>
+  <main class="container-fluid">
+    <div class="container">
+      <h2>Submit a new Post</h2>
+      <form action="/posts" method="POST" accept-charset="utf-8">
+        <input type="text" placeholder="name" name="name">
+        <input type="text" placeholder="quote" name="quote">
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </main>
+  <footer>
+    <% include ../partials/footer.ejs %>
+  </footer>
+  <div hidden>
+    <% include ../partials/scripts.ejs %>
+  </div>
+</body>
+</html>

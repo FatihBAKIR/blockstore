@@ -45,7 +45,7 @@ block:
   # Default: Static
   # Min: N/A
   # Max: N/A
-  difficultyMode: Static
+  difficultyMode: 'Static'
 
   # Description: The value used to control the difficulty of the append algorithm
   # Presence: Required
@@ -73,7 +73,7 @@ blockchain:
   # Default: Async
   # Min: N/A
   # Max: N/A
-  broadcastMode: Async
+  broadcastMode: 'Async'
 
   # Description: A minimum guarantee on the number of replicas that have accepted the new block and
   #   apended it to their chain. While this specifies a minimum, it is important to note that the system
@@ -91,4 +91,4 @@ blockchain:
   # Default: Single (note though that this will be ignored with broadcastMode's default value)
   # Min: N/A
   # Max: N/A
-  broadcastMinGuarantee: Single
+  broadcastMinGuarantee: 'Single'
