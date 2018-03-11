@@ -4,7 +4,8 @@
   "description": "",
   "main": "build/Server.js",
   "scripts": {
-    "run": "node build/Server.js"
+    "run": "node build/Server.js",
+    "start": "node build/Server.js"
   },
   "author": "",
   "license": "ISC",

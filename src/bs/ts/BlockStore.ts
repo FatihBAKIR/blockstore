@@ -6,6 +6,7 @@ import { Block, MineBlock, ValidateBlock, ValidBlock, Header, OriginHash } from 
 import { BlockChain } from "./BlockChain";
 import { Cluster, Replica } from "./Cluster";
 import * as winston from "winston";
+import os = require('os');
 
 class PendingPool
 {
@@ -74,6 +75,19 @@ function Difference(prev: Array<ValidBlock<Payload>>, next: Array<ValidBlock<Pay
         res.push(op);
     }
     return res;
+}
+
+function getLocalIp(all: string[]) {
+    for(const key of Object.keys (os.networkInterfaces())) {
+        const addresses = os.networkInterfaces()[key];
+        for(const add of addresses) {
+            if (all.indexOf(add.address) != -1)
+            {
+                return add.address;
+            }
+        }
+    }
+    return null;
 }
 
 function Apply(kv: IKVStore, op: Operation)
