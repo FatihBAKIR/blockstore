@@ -126,7 +126,7 @@ function runWorkload(database, options) {
 function runWorkloads(argv) {
   const options = formatOptions(argv);
 
-  const bscl = new bs.BlockStoreClient("198.199.108.184", 9090);
+  const bscl = new bs.BlockStoreClient("178.62.119.87", 9090);
 
   return Promise.all(
     Array(options.get('num_worker') || 1)

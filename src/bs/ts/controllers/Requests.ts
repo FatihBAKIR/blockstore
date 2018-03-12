@@ -40,7 +40,7 @@ router.get('/get/:key', (req, res) => {
  */
 router.post('/put', multer().fields([]), async(req, res) => {
     req.bs.Put(req.body.key, req.body.val, req.body.time || Date.now());
-    await req.bs.Flush();
+    await req.bs.MaybeFlush();
     res.status(201).json(req.body.val);
 });
 
@@ -51,7 +51,7 @@ router.post('/put', multer().fields([]), async(req, res) => {
  */
 router.put('/upd/:key', multer().fields([]), async(req, res) => {
     req.bs.Update(req.params.key, req.body.val, req.body.time || Date.now());
-    await req.bs.Flush();
+    await req.bs.MaybeFlush();
     res.status(200).json(req.body.val);
 });
 
@@ -62,7 +62,7 @@ router.put('/upd/:key', multer().fields([]), async(req, res) => {
  */
 router.delete('/del/:key', multer().fields([]), async(req, res) => {
     req.bs.Delete(req.params.key, req.body.time || Date.now());
-    await req.bs.Flush();
+    await req.bs.MaybeFlush();
     res.status(204).end();
 });
 

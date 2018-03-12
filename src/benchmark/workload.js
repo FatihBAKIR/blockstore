@@ -104,7 +104,7 @@ class Workload {
     
     return this.database.Get(id.toString()).then(x => {
       return x;
-    });
+    }).catch(err => null);
   }
 
   insert() {
@@ -114,7 +114,7 @@ class Workload {
 
     return this.database.Put(`${id}.${field}`, value.toString()).then(() => {
       return true;
-    });
+    }).catch(err => false);
   }
 
   update() {
@@ -124,7 +124,7 @@ class Workload {
 
     return this.database.Update(`${id}.${field}`, value.toString()).then(() => {
       return true;
-    });
+    }).catch(err => false);
   }
 }
 
