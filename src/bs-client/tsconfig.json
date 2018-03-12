@@ -4,6 +4,8 @@
       "target": "es6",
       "sourceMap": true,
       "outDir": "build",
+      "declaration": true,
+      "declarationDir": "decls",
       "strictNullChecks": true,
       "noImplicitAny": true,
       "strict": true,
@@ -11,6 +13,8 @@
       "removeComments": true
     },
     "files": [
-      "Server.ts"
+      "BlockStoreClient.ts",
+      "TestClient.ts",
+      "CLI.ts"
     ]
   }

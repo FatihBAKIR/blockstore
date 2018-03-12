@@ -1,0 +1,22 @@
+{
+  "name": "benchmark",
+  "version": "1.0.0",
+  "description": "Implements [YCSB](https://github.com/brianfrankcooper/YCSB) clients for cloud Spanner in Node.js.",
+  "main": "workload.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "binary-search-bounds": "^2.0.4",
+    "bs-client": "file:../bs-client",
+    "crypto": "^1.0.1",
+    "dedent": "^0.7.0",
+    "lodash.random": "^3.2.0",
+    "p-queue": "^2.3.1",
+    "stats-lite": "^2.1.0",
+    "time-span": "^2.0.0",
+    "yargs": "^11.0.0"
+  }
+}

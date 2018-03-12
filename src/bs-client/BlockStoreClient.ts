@@ -1,5 +1,12 @@
 import request = require("request");
 
+request.defaults({
+    forever: true,
+    pool: {
+        maxSockets: 1024
+    } 
+});
+
 export class BlockStoreClient
 {
     constructor(host: string, port: number)
