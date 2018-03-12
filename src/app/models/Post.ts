@@ -1,5 +1,7 @@
 import { Document, Schema, Model, model} from "mongoose";
 
+export let GlobalUid = 0;
+
 export interface IPost {
   uid : number;
   username : string;
@@ -22,71 +24,46 @@ PostSchema.pre("save", function(next) {
   next();
 });
 
-export const Post: Model<IPostModel> = model<IPostModel>("Post", PostSchema);
+export const PostM: Model<IPostModel> = model<IPostModel>("PostM", PostSchema);
 
-export let GlobalUid = 0;
+export class PostB implements IPost 
+{
+    uid : number;
+    username : string;
+    title : string;
+    body : string;
+    created_at: number;
+    updated_at: number;
 
+    constructor(uid : number = 0, username : string = "", title: string = "", body: string = "") 
+    {
+      this.uid = uid;
+      this.username = username;
+      this.title = title;
+      this.body = body;
+      this.created_at = Date.now();
+      this.updated_at = Date.now();
+    }
 
+     static Serialize(post: PostB): string {
+      return JSON.stringify(post);
+    }
 
+    static Deserialize(val: string): PostB {
+      let post: PostB = new PostB();
+      let postObj = JSON.parse(JSON.parse(val));
+      
+      post.uid = postObj.uid;
+      post.username = postObj.username;
+      post.title = postObj.title;
+      post.body = postObj.body;
+      post.created_at = postObj.created_at;
+      post.updated_at = postObj.updated_at;
 
+      return post;
+    }
 
-
-
-
-
-
-
-
-
-// export class Post {
-
-//   id : number;
-//   username : string;
-//   title : string;
-//   body : string;
-
-//   constructor (username : string, title : string, body : string) {
-//     this.id = this.getId();
-//     this.username = username;
-//     this.title = title;
-//     this.body = body;
-//   }
-
-//   private getId() {
-//     let newId : number = Post.id;
-//     Post.id++;
-//     return newId
-//   }
-
-//   private static id : number = 0;
-// }
-
-// // MongoDB Schema Definition
-// // const postSchema = new mongoose.Schema({
-// //   id: Number,
-// //   username: String,
-// //   title: String,
-// //   body: String
-// // }, { timestamps: true });
-// // this.postSchema = new mongoose.Schema({
-// //       id: Number,
-// //       username: String,
-// //       title: String,
-// //       body: String
-// //     }, { timestamps: true });
-// //     const PostMDB = mongoose.model('Post', postSchema);
-
-// export class PostMDB {
-//   schema : mongoose.Schema;
-//   //model : mongoose.Model;
-
-//   constructor (username : string, title : string, body : string) {
-//     this.schema = new mongoose.Schema({
-//       id: Number,
-//       username: String,
-//       title: String,
-//       body: String
-//     }, { timestamps: true });
-//     let model = mongoose.model('Post', this.schema);
-//   }
-// }
+    static PreSave() {
+      GlobalUid++;
+    }
+}

@@ -9,8 +9,6 @@ import mongoose = require('mongoose');
 import { Datastore } from "./models/Datastore";
 import * as bs from "bs-client";
 
-//const c = new bs.BlockStoreClient("159.89.50.88", 9090);
-
 /*
  * Load environment variables from .env file, where API keys and passwords are configured
  */
@@ -18,8 +16,9 @@ dotenv.load({ path: '.env' });
 
 const port : number = parseInt(process.env.PORT || process.argv[2]) || 7070;
 const address : string = '127.0.0.1';
-const datastore = Datastore.MongoDB;
-declare global { namespace Express { export interface Request { datastore: Datastore; }}}
+const datastore = Datastore.Blockstore;
+const client = new bs.BlockStoreClient("198.199.108.184", 9090);
+declare global { namespace Express { export interface Request { datastore: Datastore, client: bs.BlockStoreClient; }}}
 const app = express();
 
 /*
@@ -44,6 +43,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use((req, res, next) => {
     req.datastore = datastore;
+    req.client = client;
     next();
 });
 app.use(session({
@@ -62,13 +62,11 @@ app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }))
  * Controllers
  */
 import posts = require('./controllers/Posts');
-import comments = require('./controllers/Comments');
 
 /*
  * Routes
  */
 app.use('/posts', posts);
-app.use('/comments', comments);
 
 /*
  * Path: /

@@ -1,5 +1,5 @@
 {
-  "name": "posts-comments",
+  "name": "posts",
   "version": "1.0.0",
   "description": "",
   "main": "build/Server.js",
