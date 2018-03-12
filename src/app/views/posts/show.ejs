@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <% include ../partials/head.ejs %>
+</head>
+<body id="page-default">
+  <header>
+    <% include ../partials/header.ejs %>
+  </header>
+  <main class="container-fluid">
+    <div class="container">
+      <h2>Post #<%= post.uid %></h2>
+      <div>
+        <h4><%= post.title %></h4>
+        <p>Created by <%= post.username %></p>
+        <p><%= post.body %></p>
+        <a data-confirm="Are you sure you want to delete this post?" data-method="delete" href="/posts/<%= post.uid %>">Delete</a>
+      </div>
+    </div>
+  </main>
+  <footer>
+    <% include ../partials/footer.ejs %>
+  </footer>
+  <div hidden>
+    <% include ../partials/scripts.ejs %>
+  </div>
+</body>
+</html>

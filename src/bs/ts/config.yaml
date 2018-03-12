@@ -1,6 +1,6 @@
 # config.yaml
-# A default config file. For the full summary of each field, 
-# read src/bs/ts/example/configs/verbose.yaml
+# A simple config file for a real deployment. For the full summary of each field, 
+# go check out src/bs/ts/example/configs/verbose.yaml
 
 operation:
   maxSize: 1048576

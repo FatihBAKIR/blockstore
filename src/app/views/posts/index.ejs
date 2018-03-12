@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <% include ../partials/head.ejs %>
+</head>
+<body id="page-default">
+  <header>
+    <% include ../partials/header.ejs %>
+  </header>
+  <main class="container-fluid">
+    <div class="container">
+      <h2>Posts</h2>
+      <% if (posts.length == 0) { %>
+        <p>No posts were found!</p>
+      <% } else { %>
+        <% for (var i = 0; i < posts.length; i++) { %>
+          <div>
+            <h4><%= posts[i].title %></h4>
+            <p>Created by <%= posts[i].username %></p>
+            <p><%= posts[i].body %></p>
+          </div>
+        <% } %>
+      <% } %>
+    </div>
+  </main>
+  <footer>
+    <% include ../partials/footer.ejs %>
+  </footer>
+  <div hidden>
+    <% include ../partials/scripts.ejs %>
+  </div>
+</body>
+</html>

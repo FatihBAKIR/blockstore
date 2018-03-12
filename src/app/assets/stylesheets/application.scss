@@ -1,0 +1,82 @@
+// Colors
+// -------------------------
+
+$material-shadow: rgba(0, 0, 0, 0.9);
+$object-shadow: rgba(0, 0, 0, 0.5);
+
+$off-white: rgba(247, 247, 247, 1.0);
+$light-gray: rgba(205, 205, 205, 1.0);
+$dark-gray: rgba(100, 100, 100, 1.0);
+$off-black: rgba(50, 50, 50, 1.0);
+
+// Scaffolding
+// -------------------------
+
+html, body {
+  color: $off-black;
+  background-color: $off-white;
+  font-size: 1rem;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+section {
+  margin-top: 1rem;
+}
+
+main {
+  margin-bottom: 29vh;
+}
+
+hr {
+  width: 100%;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+br {
+  border: 1px $off-black solid;
+}
+
+// Header
+// -------------------------
+
+header {
+  position: relative;
+  background-color: white;
+  
+  .navbar {
+    border: 0;
+  }
+}
+
+// Footer
+// -------------------------
+
+footer {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+
+  .footer-nav-wrapper {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+
+    a, p, h4 {
+      color: $off-white;
+    }
+
+    a:hover,
+    a.hover {
+      color: $light-gray;
+      text-decoration: none;
+    }
+
+    h4 {
+      margin-bottom: 0.5rem;
+    }
+  }
+}

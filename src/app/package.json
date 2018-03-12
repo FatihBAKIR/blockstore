@@ -4,7 +4,8 @@
   "description": "",
   "main": "build/Server.js",
   "scripts": {
-    "run": "node build/Server.js"
+    "start": "nodemon build/Server.js",
+    "scss": "node-sass -o public/css assets/stylesheets -w --output-style compressed"
   },
   "author": "",
   "license": "ISC",
@@ -18,6 +19,7 @@
     "@types/jquery": "^3.3.1",
     "@types/mongoose": "^5.0.7",
     "@types/multer": "^1.3.6",
+    "@types/node-sass": "^3.10.32",
     "@types/popper.js": "^1.11.0",
     "body-parser": "^1.18.2",
     "bootstrap": "^4.0.0",
@@ -29,6 +31,7 @@
     "jquery": "^3.3.1",
     "mongoose": "^5.0.9",
     "multer": "^1.3.0",
+    "node-sass": "^4.7.2",
     "popper.js": "^1.12.9",
     "typescript": "^2.7.2"
   },

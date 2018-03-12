@@ -13,7 +13,7 @@ import { Datastore } from "./models/Datastore";
  */
 dotenv.load({ path: '.env' });
 
-const port : number = parseInt(process.argv[2]) || 5050;
+const port : number = parseInt(process.env.PORT || process.argv[2]) || 7070;
 const address : string = '127.0.0.1';
 const datastore = Datastore.MongoDB;
 declare global { namespace Express { export interface Request { datastore: Datastore; }}}
@@ -53,6 +53,7 @@ app.use(session({
     clear_interval: 3600
   })
 }));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
 
 /*
  * Controllers
