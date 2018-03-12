@@ -171,16 +171,46 @@ export class BlockStore implements IKVStore {
         });
     }
 
+    async MaybeFlush()
+    {
+        if (this.pool.Length() >= this.config.blkMaxOperationCount)
+        {
+            await this.Flush();
+        }
+        else
+        {
+            if (this.flushTimer != 0)
+            {
+                clearTimeout(this.flushTimer);
+            }
+            const self = this;
+            setTimeout(async() =>{
+                self.flushTimer = 0;
+                await self.Flush();
+            }, 500);
+        }
+    }
+
     async Flush()
     {
         const blk = await this.MakeBlock();
-        const p = this.chain.Append(blk);
+        try
+        {
+            const p = await this.chain.Append(blk);
+        }
+        catch(err)
+        {
+            for (const op of blk.payload.ops)
+            {
+                this.pool.PushFront(op);
+            }
+            return;
+        }
         const r = this.cluster.Replicate(blk);
         for (const op of blk.payload.ops)
         {
             this.Commit(op);
         }
-        await [p, r];
     }
 
     Pending() : boolean
@@ -310,6 +340,10 @@ export class BlockStore implements IKVStore {
             // we are missing some blocks :(
             this.logger.info("we're missing some blocks");
             const missing = await from.Query<Payload>(tHash, blks[0].hash);
+            if (missing.length == 0)
+            {
+                return false;
+            }
             return this.RecvBlocks(missing, from);
         }
         else
@@ -327,4 +361,5 @@ export class BlockStore implements IKVStore {
     private pool: PendingPool;
     private config: Config;
     private logger: winston.LoggerInstance;
+    private flushTimer: number = 0;
 }
