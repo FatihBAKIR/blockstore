@@ -9,7 +9,7 @@ block:
   maxSize: 134217728
   maxOperationCount: 128
   difficultyMode: 'Static'
-  difficultyTargetValue: 16
+  difficultyTargetValue: 8
 
 blockchain:
   broadcastMode: 'Async'

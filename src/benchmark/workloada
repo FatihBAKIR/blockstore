@@ -1,0 +1,4 @@
+readproportion=0.65
+updateproportion=0.10
+scanproportion=0
+insertproportion=0.25

@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+      "module": "commonjs",
+      "target": "es6",
+      "sourceMap": true,
+      "outDir": "build",
+      "declaration": true,
+      "declarationDir": "decls",
+      "strictNullChecks": true,
+      "noImplicitAny": true,
+      "strict": true,
+      "noImplicitReturns": true,
+      "removeComments": true
+    },
+    "files": [
+      "BlockStoreClient.ts",
+      "TestClient.ts",
+      "CLI.ts"
+    ]
+  }

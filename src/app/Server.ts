@@ -7,6 +7,9 @@ const dotenv = require('dotenv');
 const mongoStore = require('connect-mongo')(session);
 import mongoose = require('mongoose');
 import { Datastore } from "./models/Datastore";
+import * as bs from "bs-client";
+
+//const c = new bs.BlockStoreClient("159.89.50.88", 9090);
 
 /*
  * Load environment variables from .env file, where API keys and passwords are configured

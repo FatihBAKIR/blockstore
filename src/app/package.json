@@ -33,7 +33,8 @@
     "multer": "^1.3.0",
     "node-sass": "^4.7.2",
     "popper.js": "^1.12.9",
-    "typescript": "^2.7.2"
+    "typescript": "^2.7.2",
+    "bs-client": "file:../bs-client"
   },
   "devDependencies": {
     "nodemon": "^1.17.1"
