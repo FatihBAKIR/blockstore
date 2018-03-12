@@ -69,6 +69,6 @@ export class BlockChain<T>
         }
         return other;
     }
-
+    
     private blocks : Array<ValidBlock<T>>;
 }

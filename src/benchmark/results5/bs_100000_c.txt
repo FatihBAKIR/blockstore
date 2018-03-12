@@ -1,0 +1,18 @@
+
+<--- Last few GCs --->
+
+[18921:0x104003600]   303570 ms: Mark-sweep 1572.8 (1698.2) -> 1572.7 (1653.2) MB, 1805.3 / 2.0 ms  last resort GC in old space requested
+[18921:0x104003600]   305377 ms: Mark-sweep 1572.7 (1653.2) -> 1572.7 (1653.2) MB, 1806.8 / 1.2 ms  last resort GC in old space requested
+
+
+<--- JS stacktrace --->
+
+==== JS stack trace =========================================
+
+Security context: 0x17e2bf7a54d9 <JSObject>
+    1: /* anonymous */(this=0x17e22318c419 <JSGlobal Object>,0x17e2e9d822d1 <undefined>)
+    2: arguments adaptor frame: 0->1
+    3: /* anonymous */ [/Users/fatih/blockchain/src/bs-client/build/BlockStoreClient.js:65] [bytecode=0x17e2819ec641 offset=88](this=0x17e2303823b9 <BlockStoreClient map = 0x17e2067a0ff9>)
+    4: next(this=0x17e290ed4481 <JSGenerator>)
+    5: /* anonymous */(aka /* anonym...
+
